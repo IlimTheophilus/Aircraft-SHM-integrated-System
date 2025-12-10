@@ -1,9 +1,11 @@
 # ashmi_interactive_variantA.py
 import streamlit as st
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 import numpy as np
-import cv2
 import io
+
+# scikit-image imports
+from skimage import exposure, filters, feature, morphology, measure, color, util
 
 st.set_page_config(page_title="ASHMIS Interactive - Variant A", layout="wide")
 st.title("ASHMIS Interactive — Snapshot + Live Parameter Tuning (Variant A)")
@@ -23,69 +25,135 @@ No need to press a 'Run' button each time.
 # --- Helpers ---
 
 
-def pil_to_bgr(pil_img: Image.Image):
-    arr = np.array(pil_img.convert("RGB"))
-    return cv2.cvtColor(arr, cv2.COLOR_RGB2BGR)
+def pil_to_array(pil_img: Image.Image):
+    """Return an HxWx3 uint8 numpy array (RGB)."""
+    return np.array(pil_img.convert("RGB"))
 
 
-def bgr_to_pil(bgr_img: np.ndarray):
-    rgb = cv2.cvtColor(bgr_img, cv2.COLOR_BGR2RGB)
-    return Image.fromarray(rgb)
+def array_to_pil(rgb_arr: np.ndarray):
+    """Convert HxWx3 uint8 RGB numpy array to PIL Image."""
+    return Image.fromarray(rgb_arr.astype(np.uint8))
 
 
-def annotate_image(bgr, candidates, show_labels=True):
-    out = bgr.copy()
+def draw_annotations_on_array(rgb_arr: np.ndarray, candidates, show_labels=True):
+    """Draw rectangles and labels on an RGB numpy array using PIL."""
+    pil = array_to_pil(rgb_arr)
+    draw = ImageDraw.Draw(pil)
+
+    try:
+        font = ImageFont.load_default()
+    except Exception:
+        font = None
+
     for c in candidates:
         x0, y0, x1, y1 = c["box"]
-        cv2.rectangle(out, (x0, y0), (x1, y1), (0, 0, 255), 2)  # red box
+
+        # Draw bounding box
+        draw.rectangle([x0, y0, x1, y1], outline=(255, 0, 0), width=2)
+
         if show_labels:
             lbl = c.get("label", "candidate")
             if c.get("score") is not None:
                 lbl = f"{lbl} {c['score']:.2f}"
-            cv2.putText(out, lbl, (x0, max(12, y0-5)),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
-    return out
+
+            # -------------------------------
+            # FIXED: Replace textsize() → textbbox()
+            # -------------------------------
+            if font:
+                bbox = draw.textbbox((0, 0), lbl, font=font)
+                text_w = bbox[2] - bbox[0]
+                text_h = bbox[3] - bbox[1]
+            else:
+                # fallback if font fails
+                text_w = len(lbl) * 6
+                text_h = 10
+
+            text_x = x0
+            text_y = max(0, y0 - text_h - 3)
+
+            # background rectangle
+            draw.rectangle(
+                [text_x, text_y, text_x + text_w + 4, text_y + text_h + 2],
+                fill=(0, 0, 0)
+            )
+
+            # label text
+            draw.text((text_x + 2, text_y + 1), lbl,
+                      fill=(255, 255, 255), font=font)
+
+    return np.array(pil)
 
 
-def detect_candidates(bgr, params):
-    # Preprocess
-    gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
-    clahe = cv2.createCLAHE(clipLimit=params["clahe_clip"], tileGridSize=(
-        params["clahe_tile"], params["clahe_tile"]))
-    gray = clahe.apply(gray)
+def detect_candidates(rgb_arr: np.ndarray, params):
+    """
+    Input: rgb_arr (HxWx3 uint8)
+    Returns: edge_map (PIL-friendly array or boolean array), candidates list
+    """
+    # Convert to grayscale float (0..1)
+    gray = color.rgb2gray(rgb_arr)  # float64 [0,1]
+
+    # CLAHE / adaptive histogram equalization
+    # skimage exposure.equalize_adapthist expects clip_limit and kernel_size (tile size)
+    try:
+        clahe = exposure.equalize_adapthist(gray, clip_limit=max(0.01, params["clahe_clip"]/8.0),
+                                            kernel_size=(params["clahe_tile"], params["clahe_tile"]))
+    except TypeError:
+        # fallback if kernel_size not supported in this skimage version
+        clahe = exposure.equalize_adapthist(
+            gray, clip_limit=max(0.01, params["clahe_clip"]/8.0))
+
+    # Gaussian blur (if kernel>1)
     blur_k = params["blur_k"]
     if blur_k > 1:
-        gray = cv2.GaussianBlur(gray, (blur_k, blur_k), 0)
-    # Canny
-    edges = cv2.Canny(gray, params["canny_low"], params["canny_high"])
-    # Morphology
-    kernel = cv2.getStructuringElement(
-        cv2.MORPH_RECT, (params["morph_k"], params["morph_k"]))
-    closed = cv2.morphologyEx(edges, cv2.MORPH_CLOSE,
-                              kernel, iterations=params["morph_iter"])
-    # Contours
-    contours, _ = cv2.findContours(
-        closed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        sigma = max(0.3, blur_k / 2.0)
+        blurred = filters.gaussian(clahe, sigma=sigma)
+    else:
+        blurred = clahe
+
+    # Canny - thresholds need to be normalized to [0,1] (we assume slider used 0-255)
+    low_t = np.clip(params["canny_low"] / 255.0, 0.0, 1.0)
+    high_t = np.clip(params["canny_high"] / 255.0, 0.0, 1.0)
+    # skimage.feature.canny has low_threshold and high_threshold arguments in [0,1]
+    try:
+        edges = feature.canny(
+            blurred, low_threshold=low_t, high_threshold=high_t)
+    except TypeError:
+        # older versions may not accept both thresholds; fall back to sigma-based
+        edges = feature.canny(blurred, sigma=1.0)
+
+    # Morphological closing
+    morph_k = max(1, int(params["morph_k"]))
+    selem = morphology.square(morph_k)
+    closed = edges.copy()
+    for _ in range(max(1, params["morph_iter"])):
+        closed = morphology.closing(closed, selem)
+
+    # Label connected regions and compute properties
+    label_img = measure.label(closed)
+    regions = measure.regionprops(label_img)
+
     h, w = gray.shape
     candidates = []
-    for cnt in contours:
-        area = cv2.contourArea(cnt)
+    for region in regions:
+        area = region.area
         if area < params["min_area"] or area > params["max_area"]:
             continue
-        x, y, ww, hh = cv2.boundingRect(cnt)
+        minr, minc, maxr, maxc = region.bbox  # rows(y), cols(x)
         # pad
         pad = int(max(2, 0.02 * max(w, h)))
-        x0 = max(0, x - pad)
-        y0 = max(0, y - pad)
-        x1 = min(w-1, x + ww + pad)
-        y1 = min(h-1, y + hh + pad)
-        # compute simple heuristics for label
+        x0 = max(0, minc - pad)
+        y0 = max(0, minr - pad)
+        x1 = min(w-1, maxc + pad)
+        y1 = min(h-1, maxr + pad)
+        # compute heuristics
+        ww = max(1, (x1 - x0))
+        hh = max(1, (y1 - y0))
         aspect = ww / (hh + 1e-8)
-        mean_intensity = int(np.mean(gray[y0:y1, x0:x1])) if (
-            y1 > y0 and x1 > x0) else 255
+        # mean intensity from CLAHE result (0..1) convert to 0..255
+        mean_intensity = int(
+            np.mean(clahe[y0:y1, x0:x1]) * 255) if (y1 > y0 and x1 > x0) else 255
         label = "candidate"
         score = None
-        # heuristics - tune to your needs
         if aspect > params["aspect_crack_thresh"]:
             label = "crack"
             score = min(1.0, area / (params["max_area"] + 1e-6))
@@ -97,7 +165,10 @@ def detect_candidates(bgr, params):
             score = min(1.0, area / (params["max_area"] + 1e-6))
         candidates.append(
             {"box": (x0, y0, x1, y1), "area": area, "label": label, "score": score})
-    return closed, candidates
+
+    # Prepare edge map for display: convert boolean to uint8 grayscale 0..255
+    edge_map_disp = (closed.astype(np.uint8) * 255)
+    return edge_map_disp, candidates
 
 
 # --- Session state for stored image ---
@@ -120,7 +191,6 @@ with col1:
 
     # store whichever is most recent (camera has priority)
     if cam is not None:
-        # camera_input returns UploadedFile-like
         st.session_state.stored_image_bytes = cam.getvalue()
     elif uploaded is not None:
         st.session_state.stored_image_bytes = uploaded.getvalue()
@@ -183,19 +253,21 @@ with col2:
         try:
             pil_img = Image.open(io.BytesIO(
                 st.session_state.stored_image_bytes)).convert("RGB")
-            bgr = pil_to_bgr(pil_img)
+            rgb_arr = pil_to_array(pil_img)
             # optional resize for very large images (keeps responsiveness)
             max_side = 1600
-            h, w = bgr.shape[:2]
+            h, w = rgb_arr.shape[:2]
             if max(h, w) > max_side:
                 scale = max_side / float(max(h, w))
-                bgr = cv2.resize(bgr, (int(w*scale), int(h*scale)),
-                                 interpolation=cv2.INTER_AREA)
+                new_w = int(w * scale)
+                new_h = int(h * scale)
+                pil_img = pil_img.resize((new_w, new_h), Image.LANCZOS)
+                rgb_arr = pil_to_array(pil_img)
 
             # detection & annotation (runs every time any widget changes)
-            edge_map, candidates = detect_candidates(bgr, params)
-            annotated = annotate_image(
-                bgr, candidates, show_labels=show_labels)
+            edge_map, candidates = detect_candidates(rgb_arr, params)
+            annotated_arr = draw_annotations_on_array(
+                rgb_arr, candidates, show_labels=show_labels)
 
             # Layout: show original, annotated, and optionally edge map
             st.markdown("### Results")
@@ -204,25 +276,26 @@ with col2:
                 st.image(pil_img, caption="Original (stored)",
                          use_column_width=True)
             with col_b:
-                st.image(bgr_to_pil(annotated),
+                st.image(array_to_pil(annotated_arr),
                          caption="Annotated (live)", use_column_width=True)
 
             if show_edge_map:
                 st.markdown("Edge map (after CLAHE -> Canny -> Morph close)")
-                st.image(edge_map, use_column_width=True)
+                # edge_map is uint8 0..255
+                st.image(Image.fromarray(edge_map), use_column_width=True)
 
             # Download annotated image
             buf = io.BytesIO()
-            pil_out = bgr_to_pil(annotated)
+            pil_out = array_to_pil(annotated_arr)
             pil_out.save(buf, format="JPEG")
             buf.seek(0)
             st.download_button("Download annotated image", data=buf,
                                file_name=download_name, mime="image/jpeg")
+
             # Also show detection summary table
             if len(candidates) > 0:
                 st.markdown(
                     f"**Detected {len(candidates)} candidate(s)** — first few:")
-                # show small list
                 for i, c in enumerate(candidates[:8]):
                     lbl = c.get("label", "candidate")
                     area = int(c.get("area", 0))
@@ -231,7 +304,6 @@ with col2:
                 st.info("No candidates detected with current parameters.")
         except Exception as e:
             st.error(f"Processing failed: {e}")
-    # If no stored image
     else:
         st.info(
             "No image stored. Capture with the camera or upload an image in the left panel.")
