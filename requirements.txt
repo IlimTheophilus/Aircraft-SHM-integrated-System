@@ -1,0 +1,13 @@
+streamlit
+numpy
+ultralytics
+opencv-python
+tensorflow
+pytorch
+Pillow
+openai
+io
+pandas
+requests
+scikit-learn
+matplotlib
