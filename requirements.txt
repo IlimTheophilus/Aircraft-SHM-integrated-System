@@ -1,13 +1,6 @@
 streamlit
-numpy
+opencv-python-headless
 ultralytics
-opencv-python
-tensorflow
-pytorch
+numpy
 Pillow
 openai
-io
-pandas
-requests
-scikit-learn
-matplotlib
