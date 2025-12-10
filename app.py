@@ -50,7 +50,7 @@ st.write(""" Welcome to ASHMIS, an Aircraft Structural Health Monitoring (SHM) A
 # Image
 
 
-image_path = "images\fighter jet pic.jpg"
+image_path = "images/fighter jet pic.jpg"
 img = Image.open(image_path)
 
 # Fit image to the column width
@@ -90,7 +90,7 @@ st.write(
 
 # Image
 
-image_path = "images\picture of plane1.webp"
+image_path = "images/picture of plane1.webp"
 image = Image.open(image_path)
 
 # Fit image to the column width
