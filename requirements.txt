@@ -7,3 +7,4 @@ openai
 transformers
 torch
 SpeechRecognition
+llama-cpp-python==0.1.62
