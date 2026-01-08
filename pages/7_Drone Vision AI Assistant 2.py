@@ -1,104 +1,123 @@
-# Pages/7_Drone Vision AI Assistant 2.py
+# pages/Drone_Vision_HF_Assistant.py
 
 import streamlit as st
-from openai import OpenAI, RateLimitError
-import requests
-import os
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+from pathlib import Path
 import time
+import base64
 
-# -------------------------------
-# Streamlit page config
-# -------------------------------
-st.set_page_config(page_title="Drone Vision AI Assistant", layout="wide")
-st.title("🤖 Aircraft SHM AI Assistant")
+# ---------------------------
+# CONFIG
+# ---------------------------
+HF_MODEL = "TheBloke/Mistral-7B-Instruct-v0.2-GGUF"  # Change to your chosen HF model
+HF_TTS_MODEL = "facebook/fastspeech2-en-ljspeech"
+MAX_MESSAGES = 8
+MAX_TOKENS = 300
+THROTTLE = 1  # seconds between requests
 
-# -------------------------------
-# API keys
-# -------------------------------
-# Make sure to set these in Streamlit Cloud Secrets
-OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
-HF_API_TOKEN = st.secrets["HF_API_KEY"]
+# ---------------------------
+# STREAMLIT SETUP
+# ---------------------------
+st.set_page_config(page_title="Aircraft SHM AI Assistant", layout="wide")
+st.title("🤖 Aircraft SHM AI Assistant (Hugging Face)")
 
-client = OpenAI(api_key=OPENAI_API_KEY)
+# Initialize session state for chat history
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = [{"role": "system", "content": "You are an expert in Aircraft Structural Health Monitoring (SHM)."}]
 
-# -------------------------------
-# Chat history
-# -------------------------------
-if "ai_messages" not in st.session_state:
-    st.session_state.ai_messages = [
-        {"role": "system", "content": "You are a helpful AI assistant specialized in aircraft SHM and maintenance."}
-    ]
+# ---------------------------
+# HUGGING FACE AUTH
+# ---------------------------
+HF_API_TOKEN = st.secrets.get("HF_API_KEY", None)
+if HF_API_TOKEN is None:
+    st.error("⚠️ HF_API_KEY missing. Add it to Streamlit secrets.")
+    st.stop()
 
-MAX_MESSAGES = 8  # limit chat history
-MAX_TOKENS = 300  # limit response length
+# ---------------------------
+# LOAD MODELS
+# ---------------------------
+@st.cache_resource(show_spinner=False)
+def load_models():
+    # Chat model
+    tokenizer = AutoTokenizer.from_pretrained(HF_MODEL, use_auth_token=HF_API_TOKEN)
+    model = AutoModelForCausalLM.from_pretrained(HF_MODEL, use_auth_token=HF_API_TOKEN)
+    # TTS pipeline
+    tts_pipeline = pipeline("text-to-speech", model=HF_TTS_MODEL, use_auth_token=HF_API_TOKEN)
+    return tokenizer, model, tts_pipeline
 
-# -------------------------------
-# Function to call OpenAI
-# -------------------------------
-def get_ai_response(messages):
-    # Keep history within limits
+tokenizer, model, tts_pipeline = load_models()
+
+# ---------------------------
+# FUNCTIONS
+# ---------------------------
+def generate_hf_response(user_input):
+    # Append user input
+    st.session_state.chat_history.append({"role": "user", "content": user_input})
+    
+    # Limit chat history
+    messages = st.session_state.chat_history
     if len(messages) > MAX_MESSAGES + 1:
         messages = [messages[0]] + messages[-MAX_MESSAGES:]
-
+    
+    # Prepare prompt for HF model
+    prompt = ""
+    for msg in messages:
+        role = msg["role"]
+        content = msg["content"]
+        if role == "system":
+            prompt += f"{content}\n"
+        elif role == "user":
+            prompt += f"User: {content}\n"
+        elif role == "assistant":
+            prompt += f"Assistant: {content}\n"
+    
     try:
-        time.sleep(1)  # throttle repeated calls
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=messages,
-            max_tokens=MAX_TOKENS
-        )
-        return response.choices[0].message.content
+        time.sleep(THROTTLE)
+        inputs = tokenizer(prompt, return_tensors="pt")
+        outputs = model.generate(**inputs, max_new_tokens=MAX_TOKENS)
+        response_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+        
+        # Append assistant response to history
+        st.session_state.chat_history.append({"role": "assistant", "content": response_text})
+        return response_text
+    except Exception as e:
+        return f"⚠️ Hugging Face AI error: {e}"
 
-    except RateLimitError:
-        return "⚠️ The AI service is busy. Please wait a few seconds and try again."
+def text_to_speech(audio_text):
+    try:
+        audio_output = tts_pipeline(audio_text)
+        audio_bytes = audio_output["audio"]
+        b64_audio = base64.b64encode(audio_bytes).decode()
+        audio_html = f"""
+            <audio autoplay="true" controls>
+                <source src="data:audio/wav;base64,{b64_audio}" type="audio/wav">
+            </audio>
+        """
+        st.markdown(audio_html, unsafe_allow_html=True)
+    except Exception as e:
+        st.error(f"⚠️ Hugging Face TTS error: {e}")
 
-# -------------------------------
-# Function for Hugging Face TTS
-# -------------------------------
-def get_hf_tts_audio(text, filename="output.wav"):
-    url = "https://api-inference.huggingface.co/models/facebook/fastspeech2-en-ljspeech"
-    headers = {"Authorization": f"Bearer {HF_API_TOKEN}"}
-    payload = {"inputs": text}
-
-    response = requests.post(url, headers=headers, json=payload)
-
-    if response.status_code == 200:
-        audio_bytes = response.content
-        with open(filename, "wb") as f:
-            f.write(audio_bytes)
-        return filename
-    else:
-        st.warning("⚠️ Hugging Face TTS API error")
-        return None
-
-# -------------------------------
-# User input
-# -------------------------------
+# ---------------------------
+# USER INPUT
+# ---------------------------
 user_input = st.text_input("Type your question about Aircraft SHM:")
 
-if st.button("Send") and user_input.strip():
-    st.session_state.ai_messages.append({"role": "user", "content": user_input})
-    ai_response = get_ai_response(st.session_state.ai_messages)
-    st.session_state.ai_messages.append({"role": "assistant", "content": ai_response})
+if st.button("Send") and user_input:
+    # Generate AI response
+    ai_response = generate_hf_response(user_input)
+    st.markdown(f"**You:** {user_input}")
+    st.markdown(f"**AI:** {ai_response}")
     
-    # Display chat
-    for msg in st.session_state.ai_messages[1:]:  # skip system message
-        if msg["role"] == "user":
-            st.markdown(f"**You:** {msg['content']}")
-        else:
-            st.markdown(f"**AI:** {msg['content']}")
-
     # Play TTS
-    audio_file = get_hf_tts_audio(ai_response)
-    if audio_file:
-        st.audio(audio_file, format="audio/wav")
+    text_to_speech(ai_response)
 
-# -------------------------------
-# Show chat history sidebar
-# -------------------------------
-with st.sidebar:
-    st.header("Chat History")
-    for msg in st.session_state.ai_messages[1:]:
-        role = "You" if msg["role"] == "user" else "AI"
-        st.write(f"{role}: {msg['content'][:100]}{'...' if len(msg['content'])>100 else ''}")
-
+# ---------------------------
+# SHOW CHAT HISTORY
+# ---------------------------
+st.markdown("---")
+st.subheader("Chat History")
+for msg in st.session_state.chat_history[1:]:  # skip system prompt
+    if msg["role"] == "user":
+        st.markdown(f"**You:** {msg['content']}")
+    else:
+        st.markdown(f"**AI:** {msg['content']}")
