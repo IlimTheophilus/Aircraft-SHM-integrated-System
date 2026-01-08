@@ -1,12 +1,10 @@
 # app/pages/7_Drone_Vision_HF.py
 import streamlit as st
-from transformers import pipeline
+from llama_cpp import Llama
 from huggingface_hub import hf_hub_download
 from pathlib import Path
-import os
 
 st.set_page_config(page_title="Aircraft SHM AI Assistant (HF)", page_icon="🤖")
-
 st.title("🤖 Aircraft SHM AI Assistant (Hugging Face)")
 st.markdown("Ask your questions about Aircraft SHM and get AI-generated answers.")
 
@@ -19,16 +17,14 @@ except KeyError:
 
 # --- Step 2: Model Setup ---
 MODEL_REPO = "TheBloke/Mistral-7B-Instruct-v0.2-GGUF"
-MODEL_FILE = "mistral-7b-instruct-v0.2.Q3_K_M.gguf"  # Smaller quantized version for CPU
-
-# Path to store downloaded model
+MODEL_FILE = "mistral-7b-instruct-v0.2.Q3_K_M.gguf"  # smaller, CPU-friendly
 MODEL_PATH = Path.home() / "hf_models" / MODEL_FILE
 MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-# Download the model if it doesn't exist
+# Download GGUF model if missing
 if not MODEL_PATH.exists():
-    with st.spinner("Downloading model from Hugging Face (may take a few minutes)..."):
-        MODEL_PATH_LOCAL = hf_hub_download(
+    with st.spinner("Downloading model (may take a few minutes)..."):
+        hf_hub_download(
             repo_id=MODEL_REPO,
             filename=MODEL_FILE,
             token=HF_API_TOKEN,
@@ -37,20 +33,20 @@ if not MODEL_PATH.exists():
         )
         st.success("Model downloaded!")
 
-# --- Step 3: Load text-generation pipeline ---
+# --- Step 3: Load LLaMA GGUF model ---
 @st.cache_resource(show_spinner=False)
-def load_text_pipeline():
-    return pipeline(
-        task="text-generation",
-        model=str(MODEL_PATH),
-        device=-1,  # CPU only
-        use_auth_token=HF_API_TOKEN
+def load_llama_model():
+    return Llama(
+        model_path=str(MODEL_PATH),
+        n_ctx=2048,        # context length
+        n_threads=4,       # CPU threads
+        n_gpu_layers=0     # CPU-only
     )
 
 try:
-    text_pipeline = load_text_pipeline()
+    llm = load_llama_model()
 except Exception as e:
-    st.error(f"Failed to load text generation model: {e}")
+    st.error(f"Failed to load model: {e}")
     st.stop()
 
 # --- Step 4: User input and AI response ---
@@ -59,9 +55,9 @@ user_input = st.text_input("Type your question about Aircraft SHM:")
 if user_input:
     with st.spinner("Generating AI response..."):
         try:
-            response = text_pipeline(user_input, max_new_tokens=128)
-            ai_text = response[0]["generated_text"]
+            prompt = f"<s>[INST] {user_input} [/INST]"
+            output = llm(prompt, max_tokens=128, stop=["</s>"], echo=False)
             st.markdown(f"**You:** {user_input}")
-            st.markdown(f"**AI:** {ai_text}")
+            st.markdown(f"**AI:** {output['choices'][0]['text']}")
         except Exception as e:
             st.error(f"Error generating response: {e}")
