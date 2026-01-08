@@ -1,63 +1,66 @@
-# app/pages/7_Drone_Vision_HF.py
+# pages/7_Drone_Vision_HF.py
+
 import streamlit as st
-from llama_cpp import Llama
-from huggingface_hub import hf_hub_download
+import os
 from pathlib import Path
+from huggingface_hub import hf_hub_download
+from llama_cpp import Llama
 
-st.set_page_config(page_title="Aircraft SHM AI Assistant (HF)", page_icon="🤖")
+st.set_page_config(page_title="Aircraft SHM AI Assistant (HF)", page_icon="✈️")
+
 st.title("🤖 Aircraft SHM AI Assistant (Hugging Face)")
-st.markdown("Ask your questions about Aircraft SHM and get AI-generated answers.")
+st.write("Type your question about Aircraft SHM:")
 
-# --- Step 1: Hugging Face API Key ---
-try:
-    HF_API_TOKEN = st.secrets["HF_API_KEY"]
-except KeyError:
-    st.error("HF_API_KEY is missing! Add your Hugging Face token in Streamlit Secrets.")
-    st.stop()
+# --- SETTINGS ---
+HF_API_TOKEN = st.secrets.get("HF_API_KEY")  # your Hugging Face API token
+MODEL_NAME = "mistralai/Mistral-7B-Instruct-v0.2"  # HF repo name
+MODEL_FILE = "mistral-7b-instruct-v0.2.Q2_K.gguf"  # smallest quantized GGUF for CPU
+MODEL_DIR = Path("/tmp/hf_models")
+MODEL_PATH = MODEL_DIR / MODEL_FILE
 
-# --- Step 2: Model Setup ---
-MODEL_REPO = "TheBloke/Mistral-7B-Instruct-v0.2-GGUF"
-MODEL_FILE = "mistral-7b-instruct-v0.2.Q3_K_M.gguf"  # smaller, CPU-friendly
-MODEL_PATH = Path.home() / "hf_models" / MODEL_FILE
-MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
+# --- CREATE DIR IF MISSING ---
+MODEL_DIR.mkdir(parents=True, exist_ok=True)
 
-# Download GGUF model if missing
+# --- DOWNLOAD MODEL IF NOT EXISTS ---
 if not MODEL_PATH.exists():
-    with st.spinner("Downloading model (may take a few minutes)..."):
-        hf_hub_download(
-            repo_id=MODEL_REPO,
+    st.info("Downloading model (CPU-friendly, ~3GB)... This may take a few minutes.")
+    try:
+        # Download GGUF file from HF hub
+        MODEL_PATH = hf_hub_download(
+            repo_id=MODEL_NAME,
             filename=MODEL_FILE,
-            token=HF_API_TOKEN,
-            local_dir=str(MODEL_PATH.parent),
-            local_dir_use_symlinks=False
+            cache_dir=str(MODEL_DIR),
+            use_auth_token=HF_API_TOKEN
         )
-        st.success("Model downloaded!")
+        st.success("Model downloaded successfully!")
+    except Exception as e:
+        st.error(f"Failed to download model: {e}")
+        st.stop()
 
-# --- Step 3: Load LLaMA GGUF model ---
-@st.cache_resource(show_spinner=False)
-def load_llama_model():
+# --- LOAD MODEL ---
+@st.cache_resource
+def load_llm():
     return Llama(
         model_path=str(MODEL_PATH),
-        n_ctx=2048,        # context length
-        n_threads=4,       # CPU threads
-        n_gpu_layers=0     # CPU-only
+        n_ctx=2048,       # max tokens for input+output
+        n_threads=4,      # adjust based on CPU cores
+        n_gpu_layers=0    # CPU only
     )
 
 try:
-    llm = load_llama_model()
+    llm = load_llm()
 except Exception as e:
     st.error(f"Failed to load model: {e}")
     st.stop()
 
-# --- Step 4: User input and AI response ---
-user_input = st.text_input("Type your question about Aircraft SHM:")
+# --- CHAT INTERFACE ---
+user_input = st.text_input("You:", placeholder="Ask about Aircraft SHM...")
 
 if user_input:
-    with st.spinner("Generating AI response..."):
-        try:
-            prompt = f"<s>[INST] {user_input} [/INST]"
-            output = llm(prompt, max_tokens=128, stop=["</s>"], echo=False)
-            st.markdown(f"**You:** {user_input}")
-            st.markdown(f"**AI:** {output['choices'][0]['text']}")
-        except Exception as e:
-            st.error(f"Error generating response: {e}")
+    try:
+        # Wrap user input in instruction format
+        prompt = f"<s>[INST] {user_input} [/INST]"
+        output = llm(prompt, max_tokens=256, echo=False)
+        st.markdown(f"**AI:** {output['choices'][0]['text'].strip()}")
+    except Exception as e:
+        st.error(f"Failed to generate response: {e}")
