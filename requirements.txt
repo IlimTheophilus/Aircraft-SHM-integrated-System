@@ -5,3 +5,5 @@ scikit-image
 ultralytics
 openai
 transformers
+torch
+SpeechRecognition
