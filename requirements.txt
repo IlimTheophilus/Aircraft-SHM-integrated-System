@@ -4,5 +4,3 @@ Pillow
 scikit-image
 ultralytics
 openai
-os
-io
