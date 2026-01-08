@@ -1,89 +1,120 @@
-# app.py
 import streamlit as st
-import requests
+from openai import OpenAI, RateLimitError
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 import time
+import pyttsx3  # For text-to-speech (local)
+import speech_recognition as sr  # For voice input
 
-# -------------------------------
-# CONFIGURATION
-# -------------------------------
-# replace with your Hugging Face token
-HF_API_TOKEN = "YOUR_HUGGINGFACE_API_KEY"
-HF_MODEL_URL = "https://api-inference.huggingface.co/models/TheBloke/Mistral-7B-Instruct-v0.2-GGUF"
+# --------------------------
+# SETTINGS
+# --------------------------
+MAX_MESSAGES = 8
+MAX_TOKENS = 300
+OPENAI_MODEL = "gpt-4o-mini"
+HF_MODEL = "mistralai/Mistral-7B-Instruct-v0.3"
 
-MAX_MESSAGES = 8      # max chat history to keep
-MAX_TOKENS = 300      # max tokens per AI response
-THROTTLE_SEC = 1      # wait time between calls
-
-HEADERS = {"Authorization": f"Bearer {HF_API_TOKEN}"}
-
-# -------------------------------
-# STATE INIT
-# -------------------------------
+# --------------------------
+# INITIALIZE SESSION STATE
+# --------------------------
 if "ai_messages" not in st.session_state:
     st.session_state.ai_messages = []
 
-if "user_messages" not in st.session_state:
-    st.session_state.user_messages = []
+if "openai_client" not in st.session_state:
+    st.session_state.openai_client = OpenAI(api_key=st.secrets.get("OPENAI_API_KEY"))
 
-# -------------------------------
-# FUNCTIONS
-# -------------------------------
+# --------------------------
+# VOICE INPUT FUNCTION
+# --------------------------
+def get_voice_input():
+    recognizer = sr.Recognizer()
+    with sr.Microphone() as source:
+        st.info("Listening... Speak now!")
+        audio = recognizer.listen(source)
+        try:
+            text = recognizer.recognize_google(audio)
+            st.success(f"You said: {text}")
+            return text
+        except sr.UnknownValueError:
+            st.error("Could not understand audio.")
+            return ""
+        except sr.RequestError:
+            st.error("Speech Recognition service failed.")
+            return ""
 
+# --------------------------
+# VOICE OUTPUT FUNCTION
+# --------------------------
+def speak_text(text):
+    engine = pyttsx3.init()
+    engine.say(text)
+    engine.runAndWait()
 
-def query_ai(prompt):
-    """
-    Query Hugging Face hosted Mistral model
-    """
-    payload = {
-        "inputs": f"<s>[INST] {prompt} [/INST]",
-        "parameters": {"max_new_tokens": MAX_TOKENS}
-    }
+# --------------------------
+# OPENAI RESPONSE FUNCTION
+# --------------------------
+def get_openai_response(messages):
+    # Limit history
+    if len(messages) > MAX_MESSAGES + 1:
+        messages = [messages[0]] + messages[-MAX_MESSAGES:]
     try:
-        time.sleep(THROTTLE_SEC)  # throttle API calls
-        response = requests.post(HF_MODEL_URL, headers=HEADERS, json=payload)
-        response.raise_for_status()
-        result = response.json()
-        # Hugging Face text generation API returns a list with generated_text
-        return result[0]["generated_text"]
-    except requests.exceptions.HTTPError as e:
-        if response.status_code == 429:
-            return "⚠️ The AI service is busy. Please wait a few seconds and try again."
-        return f"❌ Error: {str(e)}"
+        time.sleep(1)  # Throttle API calls
+        response = st.session_state.openai_client.chat.completions.create(
+            model=OPENAI_MODEL,
+            messages=messages,
+            max_tokens=MAX_TOKENS
+        )
+        return response.choices[0].message.content
+    except RateLimitError:
+        return "⚠️ OpenAI service busy. Try again in a few seconds."
 
+# --------------------------
+# HUGGING FACE RESPONSE FUNCTION
+# --------------------------
+@st.cache_resource
+def load_hf_model():
+    tokenizer = AutoTokenizer.from_pretrained(HF_MODEL)
+    model = AutoModelForCausalLM.from_pretrained(HF_MODEL)
+    hf_pipeline = pipeline("text-generation", model=model, tokenizer=tokenizer)
+    return hf_pipeline
 
-def add_to_history(user_msg, ai_msg):
-    """
-    Store chat history with max limit
-    """
-    st.session_state.user_messages.append(user_msg)
-    st.session_state.ai_messages.append(ai_msg)
+hf_pipeline = load_hf_model()
 
-    # trim history if too long
-    if len(st.session_state.user_messages) > MAX_MESSAGES:
-        st.session_state.user_messages = st.session_state.user_messages[-MAX_MESSAGES:]
-        st.session_state.ai_messages = st.session_state.ai_messages[-MAX_MESSAGES:]
+def get_hf_response(prompt):
+    output = hf_pipeline(prompt, max_length=MAX_TOKENS, do_sample=True)
+    return output[0]["generated_text"]
 
-
-# -------------------------------
+# --------------------------
 # STREAMLIT UI
-# -------------------------------
-st.title("✈️ Aircraft SHM AI Assistant")
+# --------------------------
+st.title("🤖 Aircraft SHM AI Assistant")
+st.markdown("Ask questions about Aircraft Structural Health Monitoring (SHM). Supports voice input and chat history.")
 
-# Display chat history
-for user_msg, ai_msg in zip(st.session_state.user_messages, st.session_state.ai_messages):
-    st.markdown(f"**You:** {user_msg}")
-    st.markdown(f"**AI:** {ai_msg}")
+# Voice input button
+if st.button("🎤 Speak"):
+    voice_text = get_voice_input()
+    if voice_text:
+        st.session_state.ai_messages.append({"role": "user", "content": voice_text})
+        # Get AI response
+        openai_resp = get_openai_response(st.session_state.ai_messages)
+        hf_resp = get_hf_response(voice_text)
+        combined_resp = f"**OpenAI:** {openai_resp}\n\n**HF:** {hf_resp}"
+        st.session_state.ai_messages.append({"role": "assistant", "content": combined_resp})
+        speak_text(combined_resp)
 
-# User input
-user_input = st.text_input("Ask your AI assistant about SHM:", "")
+# Text input
+user_input = st.text_input("Or type your question here:")
+if st.button("Send") and user_input:
+    st.session_state.ai_messages.append({"role": "user", "content": user_input})
+    # Get AI response
+    openai_resp = get_openai_response(st.session_state.ai_messages)
+    hf_resp = get_hf_response(user_input)
+    combined_resp = f"**OpenAI:** {openai_resp}\n\n**HF:** {hf_resp}"
+    st.session_state.ai_messages.append({"role": "assistant", "content": combined_resp})
+    speak_text(combined_resp)
 
-if st.button("Send") and user_input.strip():
-    ai_response = query_ai(user_input)
-    add_to_history(user_input, ai_response)
-    st.experimental_rerun()
-
-# -------------------------------
-# PLACEHOLDER: Voice input integration
-# -------------------------------
-st.info("🎤 Voice input coming soon: you can record your question and send it to the AI.")
-# Future: integrate with `speech_recognition` or browser-based WebRTC TTS
+# Display chat
+for msg in st.session_state.ai_messages:
+    if msg["role"] == "user":
+        st.markdown(f"**You:** {msg['content']}")
+    else:
+        st.markdown(f"**AI:** {msg['content']}")
