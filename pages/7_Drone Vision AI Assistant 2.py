@@ -1,66 +1,72 @@
-# pages/7_Drone_Vision_HF.py
+# pages/7_Drone_Vision_AI_Assistant_HF.py
 
 import streamlit as st
-import os
-from pathlib import Path
 from huggingface_hub import hf_hub_download
 from llama_cpp import Llama
+from pathlib import Path
 
-st.set_page_config(page_title="Aircraft SHM AI Assistant (HF)", page_icon="✈️")
-
+st.set_page_config(page_title="Aircraft SHM AI Assistant (HF)", layout="wide")
 st.title("🤖 Aircraft SHM AI Assistant (Hugging Face)")
-st.write("Type your question about Aircraft SHM:")
 
-# --- SETTINGS ---
-HF_API_TOKEN = st.secrets.get("HF_API_KEY")  # your Hugging Face API token
-MODEL_NAME = "mistralai/Mistral-7B-Instruct-v0.2"  # HF repo name
-MODEL_FILE = "mistral-7b-instruct-v0.2.Q2_K.gguf"  # smallest quantized GGUF for CPU
-MODEL_DIR = Path("/tmp/hf_models")
-MODEL_PATH = MODEL_DIR / MODEL_FILE
+# --- Hugging Face model settings ---
+HF_API_TOKEN = st.secrets["HF_API_KEY"]  # Make sure you saved this in Streamlit secrets
+HF_MODEL_REPO = "TheBloke/Mistral-7B-Instruct-v0.2-GGUF"
+HF_MODEL_FILE = "mistral-7b-instruct-v0.2.Q2_K.gguf"  # Smallest CPU-friendly (~3GB)
+LOCAL_MODEL_PATH = Path.home() / "hf_models" / HF_MODEL_FILE
+LOCAL_MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-# --- CREATE DIR IF MISSING ---
-MODEL_DIR.mkdir(parents=True, exist_ok=True)
-
-# --- DOWNLOAD MODEL IF NOT EXISTS ---
-if not MODEL_PATH.exists():
-    st.info("Downloading model (CPU-friendly, ~3GB)... This may take a few minutes.")
-    try:
-        # Download GGUF file from HF hub
-        MODEL_PATH = hf_hub_download(
-            repo_id=MODEL_NAME,
-            filename=MODEL_FILE,
-            cache_dir=str(MODEL_DIR),
-            use_auth_token=HF_API_TOKEN
-        )
-        st.success("Model downloaded successfully!")
-    except Exception as e:
-        st.error(f"Failed to download model: {e}")
-        st.stop()
-
-# --- LOAD MODEL ---
+# --- Function to load or download model ---
 @st.cache_resource
-def load_llm():
-    return Llama(
-        model_path=str(MODEL_PATH),
-        n_ctx=2048,       # max tokens for input+output
-        n_threads=4,      # adjust based on CPU cores
-        n_gpu_layers=0    # CPU only
+def load_model():
+    if not LOCAL_MODEL_PATH.exists():
+        try:
+            st.info("Downloading model... this may take a few minutes!")
+            hf_hub_download(
+                repo_id=HF_MODEL_REPO,
+                filename=HF_MODEL_FILE,
+                cache_dir=str(LOCAL_MODEL_PATH.parent),
+                use_auth_token=HF_API_TOKEN
+            )
+        except Exception as e:
+            st.error(f"Failed to download model: {e}")
+            st.stop()
+
+    st.success("Loading model into memory...")
+    llm = Llama(
+        model_path=str(LOCAL_MODEL_PATH),
+        n_ctx=2048,        # context length
+        n_threads=4,       # adjust for CPU cores
+        n_gpu_layers=0     # change if GPU available
     )
+    st.success("Model loaded successfully!")
+    return llm
 
-try:
-    llm = load_llm()
-except Exception as e:
-    st.error(f"Failed to load model: {e}")
-    st.stop()
+# --- Load model ---
+llm = load_model()
 
-# --- CHAT INTERFACE ---
-user_input = st.text_input("You:", placeholder="Ask about Aircraft SHM...")
+# --- Session state for chat history ---
+if "history" not in st.session_state:
+    st.session_state.history = []
 
-if user_input:
+# --- Chat interface ---
+user_input = st.text_input("Type your question about Aircraft SHM:")
+
+if st.button("Send") and user_input.strip():
+    st.session_state.history.append({"role": "user", "content": user_input})
+
+    # Prepare prompt for LLaMA-style instruct model
+    prompt = "<s>[INST] " + user_input + " [/INST]"
     try:
-        # Wrap user input in instruction format
-        prompt = f"<s>[INST] {user_input} [/INST]"
-        output = llm(prompt, max_tokens=256, echo=False)
-        st.markdown(f"**AI:** {output['choices'][0]['text'].strip()}")
+        output = llm(prompt, max_tokens=512, stop=["</s>"], echo=False)
+        response = output["choices"][0]["text"].strip()
     except Exception as e:
-        st.error(f"Failed to generate response: {e}")
+        response = f"⚠️ Model inference error: {e}"
+
+    st.session_state.history.append({"role": "assistant", "content": response})
+
+# --- Display chat history ---
+for msg in st.session_state.history:
+    if msg["role"] == "user":
+        st.markdown(f"**You:** {msg['content']}")
+    else:
+        st.markdown(f"**AI:** {msg['content']}")
