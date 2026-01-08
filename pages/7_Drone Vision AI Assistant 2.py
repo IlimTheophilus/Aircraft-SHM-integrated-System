@@ -1,105 +1,73 @@
-# pages/Drone_Vision_HF_Assistant.py
-
 import streamlit as st
-from llama_cpp import Llama
+from pathlib import Path
+from huggingface_hub import hf_hub_download
 from transformers import pipeline
-import time
-import base64
 
-# ---------------------------
-# CONFIG
-# ---------------------------
-HF_TTS_MODEL = "facebook/fastspeech2-en-ljspeech"
-GGUF_MODEL_PATH = "./models/mistral-7b-instruct-v0.2.Q4_K_M.gguf"  # download manually or via huggingface_hub
-MAX_MESSAGES = 8
-MAX_TOKENS = 300
-THROTTLE = 1  # seconds
+st.set_page_config(page_title="Aircraft SHM AI Assistant (HF)", layout="wide")
 
-# ---------------------------
-# STREAMLIT SETUP
-# ---------------------------
-st.set_page_config(page_title="Aircraft SHM AI Assistant", layout="wide")
-st.title("🤖 Aircraft SHM AI Assistant (Hugging Face GGUF)")
+st.title("🤖 Aircraft SHM AI Assistant (Hugging Face)")
 
-# Initialize session state
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = [{"role": "system", "content": "You are an expert in Aircraft SHM."}]
+# ---- Hugging Face API Token ----
+HF_API_TOKEN = st.secrets["HF_API_KEY"]
 
-# ---------------------------
-# LOAD MODELS
-# ---------------------------
-@st.cache_resource(show_spinner=False)
+# ---- Model Setup ----
+@st.cache_resource(show_spinner=True)
 def load_models():
-    # Llama GGUF model
-    llm = Llama(
-        model_path=GGUF_MODEL_PATH,
-        n_ctx=2048,
-        n_threads=8,
-        n_gpu_layers=0  # adjust if GPU available
+    """
+    Downloads and loads the Hugging Face text generation and TTS models.
+    Returns:
+        text_pipeline: Hugging Face text generation pipeline
+        tts_pipeline: Hugging Face text-to-speech pipeline
+    """
+    # Model names
+    HF_TEXT_MODEL = "TheBloke/Mistral-7B-Instruct-v0.2-GGUF"
+    HF_TTS_MODEL = "facebook/fastspeech2-en-ljspeech"
+
+    # Download GGUF file for text generation
+    model_dir = Path.home() / "hf_models" / "mistral"
+    model_dir.mkdir(parents=True, exist_ok=True)
+    GGUF_FILE = "mistral-7b-instruct-v0.2.Q4_K_M.gguf"
+    model_path = hf_hub_download(
+        repo_id=HF_TEXT_MODEL,
+        filename=GGUF_FILE,
+        token=HF_API_TOKEN,
+        cache_dir=model_dir
     )
-    # Hugging Face TTS
-    tts_pipeline = pipeline("text-to-speech", model=HF_TTS_MODEL)
-    return llm, tts_pipeline
 
-llm, tts_pipeline = load_models()
+    # Text generation pipeline
+    text_pipeline = pipeline(
+        task="text-generation",
+        model=model_path,
+        device=0 if st.runtime.exists("gpu") else -1  # use GPU if available
+    )
 
-# ---------------------------
-# FUNCTIONS
-# ---------------------------
-def generate_hf_response(user_input):
-    st.session_state.chat_history.append({"role": "user", "content": user_input})
-    # Prepare prompt
-    messages = st.session_state.chat_history[-MAX_MESSAGES:]
-    prompt = ""
-    for msg in messages:
-        if msg["role"] == "system":
-            prompt += f"{msg['content']}\n"
-        elif msg["role"] == "user":
-            prompt += f"User: {msg['content']}\n"
-        elif msg["role"] == "assistant":
-            prompt += f"Assistant: {msg['content']}\n"
+    # Text-to-speech pipeline
+    tts_pipeline = pipeline(
+        task="text-to-speech",
+        model=HF_TTS_MODEL,
+        use_auth_token=HF_API_TOKEN
+    )
 
-    time.sleep(THROTTLE)
-    try:
-        output = llm(prompt, max_tokens=MAX_TOKENS)
-        response_text = output["choices"][0]["text"]
-        st.session_state.chat_history.append({"role": "assistant", "content": response_text})
-        return response_text
-    except Exception as e:
-        return f"⚠️ AI error: {e}"
+    return text_pipeline, tts_pipeline
 
-def text_to_speech(audio_text):
-    try:
-        audio = tts_pipeline(audio_text)
-        audio_bytes = audio["audio"]
-        b64_audio = base64.b64encode(audio_bytes).decode()
-        audio_html = f"""
-        <audio autoplay="true" controls>
-            <source src="data:audio/wav;base64,{b64_audio}" type="audio/wav">
-        </audio>
-        """
-        st.markdown(audio_html, unsafe_allow_html=True)
-    except Exception as e:
-        st.error(f"⚠️ TTS error: {e}")
+# Load models
+text_pipeline, tts_pipeline = load_models()
 
-# ---------------------------
-# USER INTERFACE
-# ---------------------------
-user_input = st.text_input("Ask your question about Aircraft SHM:")
+# ---- User Input ----
+user_input = st.text_input("Type your question about Aircraft SHM:")
 
-if st.button("Send") and user_input:
-    ai_response = generate_hf_response(user_input)
-    st.markdown(f"**You:** {user_input}")
-    st.markdown(f"**AI:** {ai_response}")
-    text_to_speech(ai_response)
+if user_input:
+    with st.spinner("Generating AI response..."):
+        # Text generation
+        response = text_pipeline(user_input, max_new_tokens=256, do_sample=True)
+        ai_text = response[0]["generated_text"]
+        st.markdown(f"**You:** {user_input}")
+        st.markdown(f"**AI:** {ai_text}")
 
-# ---------------------------
-# SHOW CHAT HISTORY
-# ---------------------------
-st.markdown("---")
-st.subheader("Chat History")
-for msg in st.session_state.chat_history[1:]:
-    if msg["role"] == "user":
-        st.markdown(f"**You:** {msg['content']}")
-    else:
-        st.markdown(f"**AI:** {msg['content']}")
+        # Text-to-speech
+        try:
+            audio_path = Path("tts_output.wav")
+            tts_pipeline(ai_text, save_to_file=audio_path)
+            st.audio(str(audio_path))
+        except Exception as e:
+            st.error(f"⚠️ Hugging Face TTS error: {e}")
