@@ -1,26 +1,33 @@
-# pages/7_Drone_Vision_AI_Assistant_HF.py
-
 import streamlit as st
+from pathlib import Path
 from huggingface_hub import hf_hub_download
 from llama_cpp import Llama
-from pathlib import Path
 
+# ------------------------------
+# Streamlit app title
+# ------------------------------
 st.set_page_config(page_title="Aircraft SHM AI Assistant (HF)", layout="wide")
 st.title("🤖 Aircraft SHM AI Assistant (Hugging Face)")
+st.write("Ask questions about Aircraft SHM. Powered by Mistral 7B Instruct (GGUF).")
 
-# --- Hugging Face model settings ---
-HF_API_TOKEN = st.secrets["HF_API_KEY"]  # Make sure you saved this in Streamlit secrets
+# ------------------------------
+# Hugging Face API Token & Model
+# ------------------------------
+HF_API_TOKEN = st.secrets["HF_API_KEY"]  # Add this in your Streamlit secrets
 HF_MODEL_REPO = "TheBloke/Mistral-7B-Instruct-v0.2-GGUF"
-HF_MODEL_FILE = "mistral-7b-instruct-v0.2.Q2_K.gguf"  # Smallest CPU-friendly (~3GB)
+HF_MODEL_FILE = "mistral-7b-instruct-v0.2.Q4_K_M.gguf"  # Correct working GGUF
 LOCAL_MODEL_PATH = Path.home() / "hf_models" / HF_MODEL_FILE
 LOCAL_MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-# --- Function to load or download model ---
-@st.cache_resource
+# ------------------------------
+# Load LLM
+# ------------------------------
+@st.cache_resource(show_spinner=True)
 def load_model():
+    # Download if not exists
     if not LOCAL_MODEL_PATH.exists():
+        st.info("Downloading model (~4.37 GB). This may take a while...")
         try:
-            st.info("Downloading model... this may take a few minutes!")
             hf_hub_download(
                 repo_id=HF_MODEL_REPO,
                 filename=HF_MODEL_FILE,
@@ -31,42 +38,29 @@ def load_model():
             st.error(f"Failed to download model: {e}")
             st.stop()
 
-    st.success("Loading model into memory...")
+    # Load model
+    st.info("Loading model into memory...")
     llm = Llama(
         model_path=str(LOCAL_MODEL_PATH),
-        n_ctx=2048,        # context length
-        n_threads=4,       # adjust for CPU cores
-        n_gpu_layers=0     # change if GPU available
+        n_ctx=2048,       # max sequence length
+        n_threads=4,      # adjust based on your CPU
+        n_gpu_layers=0    # set >0 if GPU available
     )
-    st.success("Model loaded successfully!")
+    st.success("Model loaded!")
     return llm
 
-# --- Load model ---
 llm = load_model()
 
-# --- Session state for chat history ---
-if "history" not in st.session_state:
-    st.session_state.history = []
-
-# --- Chat interface ---
+# ------------------------------
+# User input
+# ------------------------------
 user_input = st.text_input("Type your question about Aircraft SHM:")
 
-if st.button("Send") and user_input.strip():
-    st.session_state.history.append({"role": "user", "content": user_input})
-
-    # Prepare prompt for LLaMA-style instruct model
-    prompt = "<s>[INST] " + user_input + " [/INST]"
-    try:
+if user_input:
+    with st.spinner("Generating response..."):
+        # Llama expects <s>[INST] ... [/INST] format for instruction models
+        prompt = f"<s>[INST] {user_input} [/INST]"
         output = llm(prompt, max_tokens=512, stop=["</s>"], echo=False)
-        response = output["choices"][0]["text"].strip()
-    except Exception as e:
-        response = f"⚠️ Model inference error: {e}"
-
-    st.session_state.history.append({"role": "assistant", "content": response})
-
-# --- Display chat history ---
-for msg in st.session_state.history:
-    if msg["role"] == "user":
-        st.markdown(f"**You:** {msg['content']}")
-    else:
-        st.markdown(f"**AI:** {msg['content']}")
+        response_text = output["choices"][0]["text"]
+        st.markdown(f"**You:** {user_input}")
+        st.markdown(f"**AI:** {response_text}")
