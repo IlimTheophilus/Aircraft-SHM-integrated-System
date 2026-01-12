@@ -5,6 +5,49 @@ from PIL import Image
 # Title
 st.title(" Airframe Structural Health Monitoring Integrated System (ASHMIS) ")
 
+
+# Image
+
+
+image_path = "images\ASHMIS img.png"
+img = Image.open(image_path)
+
+# Fit image to the column width
+st.image(img, caption="Sample Image", use_container_width=True)
+
+
+# Text
+
+# Header
+st.subheader(" A Low-Cost AI Integrated System for Aircraft Maintenance ")
+
+# Write
+st.write(""" Welcome to ASHMIS, an Aircraft Structural Health Monitoring (SHM) Application designed to use Thermal/Visual 
+         Imaging Technology and Artificial Intelligence to carry out Non-Destructive Testing and Inspections on the Aircraft's 
+         Airframe (Focused on the Wings for now) capable of detecting early-stage cracks and anomalies in Aircraft Structures 
+         using affordable sensors and machine learning techniques.
+         """)
+
+
+# Image
+
+
+image_path = "images/fighter jet pic.jpg"
+img = Image.open(image_path)
+
+# Fit image to the column width
+st.image(img, caption="Sample Image", use_container_width=True)
+
+
+st.write("""ASHMIS is an integrated, lowcost Airframe Structural Health Monitoring System that leverages computer vision, thermal
+         imaging and Machine learning to automatically detect structural defects in aircraft components such as wings, fuselage and 
+         tail sections. This module enables the acquisition, processing, and analysis of visual and thermal images to identify potential 
+         issues such as cracks, delamination, and corrosion, facilitating timely maintenance and ensuring flight safety. Using a hybrid 
+         detection architecture, combining thermal gradient analysis, pixel level defect segmentation and ML-driven pattern recognition, 
+         ASHMIS evaluates each snapshot for indications of structural degradation, hotspots, material discontinuities, or other early-stage
+         failutre signatures.""")
+
+
 # --- HEADER SECTION ---
 st.markdown("""
     <style>
@@ -32,38 +75,6 @@ st.markdown("""
     <p>Real-time Aircraft Wing Health Monitoring and Defect Detection powered by Artificial Intelligence </p>
 </div>
 """, unsafe_allow_html=True)
-
-
-# Text
-
-# Header
-st.subheader(" A Low-Cost AI Integrated System for Aircraft Maintenance ")
-
-# Write
-st.write(""" Welcome to ASHMIS, an Aircraft Structural Health Monitoring (SHM) Application designed to use Thermal/Visual 
-         Imaging Technology and Artificial Intelligence to carry out Non-Destructive Testing and Inspections on the Aircraft's 
-         Airframe (Focused on the Wings for now) capable of detecting early-stage cracks and anomalies in Aircraft Structures 
-         using affordable sensors and machine learning techniques.
-         """)
-
-
-# Image
-
-
-image_path = "images/fighter jet pic.jpg"
-img = Image.open(image_path)
-
-# Fit image to the column width
-st.image(img, caption="Sample Image", use_column_width=True)
-
-
-st.write("""ASHMIS is an integrated, lowcost Airframe Structural Health Monitoring System that leverages computer vision, thermal
-         imaging and Machine learning to automatically detect structural defects in aircraft components such as wings, fuselage and 
-         tail sections. This module enables the acquisition, processing, and analysis of visual and thermal images to identify potential 
-         issues such as cracks, delamination, and corrosion, facilitating timely maintenance and ensuring flight safety. Using a hybrid 
-         detection architecture, combining thermal gradient analysis, pixel level defect segmentation and ML-driven pattern recognition, 
-         ASHMIS evaluates each snapshot for indications of structural degradation, hotspots, material discontinuities, or other early-stage
-         failutre signatures.""")
 
 
 st.write(" Aircraft's Structural Integrity is vital to flight safety and maintenance cost efficiency. Conventional inspection methods although effective, are expensive and labour intensive, limiting their frequent use in developing Aerospace enviroments such as Nigeria. This System Integrates Thermal imaging and Visual "
@@ -94,7 +105,7 @@ image_path = "images/picture of plane1.webp"
 image = Image.open(image_path)
 
 # Fit image to the column width
-st.image(image, caption="Sample Image", use_column_width=True)
+st.image(image, caption="Sample Image", use_container_width=True)
 
 
 # --- END SECTION ---
