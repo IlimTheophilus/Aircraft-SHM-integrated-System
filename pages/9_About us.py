@@ -128,8 +128,6 @@ st.image(image, caption="Sample Image", use_container_width=True)
 
 
 
-""")
-
 st.subheader(" Beyond Maintenance ")
 
 st.write("""While ASHMIS begins with structural health monitoring, AeroIntel Systems Technologies is not limited to maintenance alone.
