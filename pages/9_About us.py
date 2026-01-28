@@ -51,64 +51,79 @@ img = Image.open(image_path)
 st.image(img, caption="Sample Image", use_container_width=True)
 
 
-st.write("""ASHMIS is an integrated, lowcost Airframe Structural Health Monitoring System that leverages computer vision, thermal
-         imaging and Machine learning to automatically detect structural defects in aircraft components such as wings, fuselage and 
-         tail sections. This module enables the acquisition, processing, and analysis of visual and thermal images to identify potential 
-         issues such as cracks, delamination, and corrosion, facilitating timely maintenance and ensuring flight safety. Using a hybrid 
-         detection architecture, combining thermal gradient analysis, pixel level defect segmentation and ML-driven pattern recognition, 
-         ASHMIS evaluates each snapshot for indications of structural degradation, hotspots, material discontinuities, or other early-stage
-         failutre signatures.""")
+st.subheader(" Our Vision ")
+
+st.write("""To become a globally respected aerospace and defense systems company delivering intelligent technologies that enhance airspace safety, mission effectiveness, and national security, while enabling Nigeria as an emerging Aerospace nation to build and control it’s own critical capabilities.
+________________________________________
+""")
+
+st.subheader(" Our Mission ")
+
+st.write("""To design, develop, and deploy advanced aerospace and defense systems that combine:
+•	Aerospace engineering
+•	Intelligent sensing
+•	Data-driven decision systems
+•	Artificial Intelligence Autonomous and adaptive technologies
+into reliable, scalable solutions for civil aviation, defense, and strategic aerospace applications.
+________________________________________
+
+""")
 
 
-# --- HEADER SECTION ---
-st.markdown("""
-    <style>
-    .hero {
-        text-align: center;
-        padding: 50px 20px;
-        background: linear-gradient(135deg,#0369a1, #0ea5e9);
-        color: yellow;
-        border-radius: 10px;
-    }
-    .hero h1 {
-        font-size: 3em;
-        font-weight: 800;
-    }
-    .hero p {
-        font-size: 1.3em;
-        color: #e0f2fe;
-    }
-    </style>
-""", unsafe_allow_html=True)
 
-st.markdown("""
-<div class="hero">
-    <h1>Drone Vision AI</h1>
-    <p>Real-time Aircraft Wing Health Monitoring and Defect Detection powered by Artificial Intelligence </p>
-</div>
-""", unsafe_allow_html=True)
+st.subheader(" Our First Platform: Aircraft Structural Health Monitoring and Integrated System (ASHMIS) ")
+
+st.write("""ASHMIS is a web-based aerospace intelligence platform designed to transform aircraft maintenance and inspection.
+Using thermal visual imaging and computer vision, ASHMIS scans aircraft surfaces to detect:
+•	Structural cracks
+•	Delamination
+•	Corrosion
+•	Material fatigue and hidden defects
+ASHMIS turns visual and thermal data into actionable engineering insight, enabling:
+•	Faster inspections
+•	Early fault detection
+•	Reduced Aircraft on Ground (AOG) time
+•	Improved airworthiness decision-making
+This is not just software, it is a foundation for intelligent Aircraft systems.
+________________________________________
+
+""")
 
 
-st.write(" Aircraft's Structural Integrity is vital to flight safety and maintenance cost efficiency. Conventional inspection methods although effective, are expensive and labour intensive, limiting their frequent use in developing Aerospace enviroments such as Nigeria. This System Integrates Thermal imaging and Visual "
-         "Imaging to detect cracks, delamination and other structural defects.")
+st.subheader(" Why It Matters ")
+
+st.write("""In many regions, including Africa, aircraft maintenance still relies heavily on:
+•	Manual inspections
+•	Time-based maintenance schedules
+•	Limited access to advanced diagnostic tools
+AeroIntel Systems Technologies aims to change that reality by building technologies that:
+•	Increase aviation safety
+•	Reduce operational costs
+•	Strengthen local Aerospace capability
+•	Support airlines, MROs, defense operators, and regulators
+Our work contributes directly to safer skies, stronger infrastructure, and a more self-reliant Aerospace ecosystem.
+________________________________________
 
 
-st.write(" Such an Application is designed to demonstrate that affordable imaging and AI technologies can be integrated to acheive reliable structural health assessment.")
+""")
 
-# Simple input
-name = st.text_input(
-    "Enter your Name Below to join the team, and be part of something special to come:")
+st.subheader(" Beyond Maintenance ")
 
-# Button
-if st.button("submit name"):
-    st.write(
-        f"Hello, {name}! Your name has been submitted, standby for processing 😄")
+st.write("""While ASHMIS begins with structural health monitoring, AeroIntel Systems Technologies is not limited to maintenance alone.
+Our long-term roadmap includes:
+•	Intelligent aircraft systems
+•	Aerospace data platforms
+•	Defense and surveillance technologies
+•	Autonomous inspection and monitoring tools
+ASHMIS is the first step, not the destination.
+AeroIntel Systems (AIS) Technologies is built with a systems-level mindset, combining engineering rigor, software intelligence, and real operational needs.
+We are building today what the aerospace industry will rely on tomorrow.
+Built for Scale. Designed for Impact.
 
-# Slider example
-age = st.slider(
-    " Enter your years of experience in Python Programming", 0, 30, 2)
-st.write(
-    f"wow you have {age} years of experience. After having {age} years experience in writing, give me a summary of the time you spent Programming")
+""")
+
+
+
 
 
 # Image
