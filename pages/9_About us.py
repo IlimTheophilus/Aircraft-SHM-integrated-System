@@ -101,9 +101,9 @@ Using thermal visual imaging and computer vision, ASHMIS scans aircraft surfaces
 
 •	 Material fatigue and hidden defects
 
+""")
 
-
-ASHMIS turns visual and thermal data into actionable engineering insight, enabling:
+st.write("""ASHMIS turns visual and thermal data into actionable engineering insight, enabling:
 
 •	Faster inspections
 
