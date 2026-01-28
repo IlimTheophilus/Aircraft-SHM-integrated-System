@@ -20,7 +20,7 @@ st.image(img, caption="", use_container_width=True)
 # Text
 
 # Header
-st.subheader(" AeroIntel Systems (AIS) Technologies ")
+st.header(" AeroIntel Systems (AIS) Technologies ")
 
 st.subheader(" Building the Next Generation of Intelligence Systems ")
 
