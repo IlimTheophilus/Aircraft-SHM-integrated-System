@@ -13,7 +13,7 @@ image_path = "images/ASHMIS img.png"
 img = Image.open(image_path)
 
 # Fit image to the column width
-st.image(img, caption="Sample Image", use_container_width=True)
+st.image(img, caption="", use_container_width=True)
 
 
 
@@ -37,7 +37,7 @@ image_path = "images/fighter jet pic.jpg"
 img = Image.open(image_path)
 
 # Fit image to the column width
-st.image(img, caption="Sample Image", use_container_width=True)
+st.image(img, caption="", use_container_width=True)
 
 
 st.write("""ASHMIS is an integrated, lowcost Airframe Structural Health Monitoring System that leverages computer vision, thermal
@@ -106,7 +106,7 @@ image_path = "images/picture of plane1.webp"
 image = Image.open(image_path)
 
 # Fit image to the column width
-st.image(image, caption="Sample Image", use_container_width=True)
+st.image(image, caption="", use_container_width=True)
 
 
 # --- END SECTION ---
