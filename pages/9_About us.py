@@ -77,7 +77,7 @@ st.subheader(" Our First Platform: Aircraft Structural Health Monitoring and Int
 # Image
 
 
-image_path = "images/fighter jet pic.jpg"
+image_path = "images/ASHMIS img.png"
 img = Image.open(image_path)
 
 # Fit image to the column width
