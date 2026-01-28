@@ -32,13 +32,13 @@ Our focus is not a single product or domain, but the creation of scalable aerosp
           Aerospace Intelligent Systems (AIS) Technologies recognizes aerospace technology as a strategic National asset.
 Our work contributes to:
 
-•	Enhanced Aircraft Maintenance and platform readiness
+•Enhanced Aircraft Maintenance and platform readiness
 
-•	Reduced dependence on foreign diagnostic and maintenance systems
+•Reduced dependence on foreign diagnostic and maintenance systems
 
-•	Stronger National Defense capabilities
+•Stronger National Defense capabilities
 
-•	Low-Cost Indigenous Aerospace technology development
+•Low-Cost Indigenous Aerospace technology development
 
 By building local expertise and scalable systems, we aim to support National defense readiness while competing globally.
 ________________________________________
@@ -67,13 +67,13 @@ st.subheader(" Our Mission ")
 
 st.write("""To design, develop, and deploy advanced aerospace and defense systems that combine:
 
-•	Aerospace engineering
+•Aerospace engineering
 
-•	Intelligent sensing
+•Intelligent sensing
 
-•	Data-driven decision systems
+•Data-driven decision systems
 
-•	Artificial Intelligence Autonomous and adaptive technologies
+•Artificial Intelligence Autonomous and adaptive technologies
 
 into reliable, scalable solutions for civil aviation, defense, and strategic aerospace applications.
 ________________________________________
@@ -98,26 +98,26 @@ st.image(img, caption="", use_container_width=True)
 st.write("""ASHMIS is a web-based aerospace intelligence platform designed to transform aircraft maintenance and inspection.
 Using thermal visual imaging and computer vision, ASHMIS scans aircraft surfaces to detect:
 
-•	 Structural cracks
+• Structural cracks
 
-•	 Delamination
+• Delamination
 
-•	 Corrosion
+• Corrosion
 
-•	 Material fatigue and hidden defects
+• Material fatigue and hidden defects
 
 """)
 
 
 st.write("""ASHMIS turns visual and thermal data into actionable engineering insight, enabling:
 
-•	Faster inspections
+•Faster inspections
 
-•	Early fault detection
+•Early fault detection
 
-•	Reduced Aircraft on Ground (AOG) time
+•Reduced Aircraft on Ground (AOG) time
 
-•	Improved airworthiness decision-making
+•Improved airworthiness decision-making
 
 This is not just software, it is a foundation for intelligent Aircraft systems.
 ________________________________________
@@ -129,15 +129,15 @@ st.subheader(" Why It Matters ")
 
 st.text("""In many regions, including Africa, aircraft maintenance still relies heavily on: 
 
-•	Manual inspections
-•	Time-based maintenance schedules
-•	Limited access to advanced diagnostic tools
+•Manual inspections
+•Time-based maintenance schedules
+•Limited access to advanced diagnostic tools
      
  AeroIntel Systems Technologies aims to change that reality by building technologies that:
-•	Increase aviation safety
-•	Reduce operational costs
-•	Strengthen local Aerospace capability
-•	Support airlines, MROs, defense operators, and regulators
+•Increase aviation safety
+•Reduce operational costs
+•Strengthen local Aerospace capability
+•Support airlines, MROs, defense operators, and regulators
 Our work contributes directly to safer skies, stronger infrastructure, and a more self-reliant Aerospace ecosystem.
 ________________________________________
 
@@ -158,10 +158,15 @@ st.subheader(" Beyond Maintenance ")
 
 st.write("""While ASHMIS begins with structural health monitoring, AeroIntel Systems Technologies is not limited to maintenance alone.
 Our long-term roadmap includes:
-•	Intelligent aircraft systems
-•	Aerospace data platforms
-•	Defense and surveillance technologies
-•	Autonomous inspection and monitoring tools
+
+•Intelligent aircraft systems
+
+•Aerospace data platforms
+
+•Defense and surveillance technologies
+
+•Autonomous inspection and monitoring tools
+
 ASHMIS is the first step, not the destination.
 AeroIntel Systems (AIS) Technologies is built with a systems-level mindset, combining engineering rigor, software intelligence, and real operational needs.
 We are building today what the aerospace industry will rely on tomorrow.
