@@ -109,7 +109,7 @@ ________________________________________
 
 # Image
 
-image_path = "images/picture of plane1.webp"
+image_path = "images/global-air-travel-connectivity.jpg"
 image = Image.open(image_path)
 
 # Fit image to the column width
