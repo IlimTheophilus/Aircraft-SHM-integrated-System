@@ -88,6 +88,7 @@ st.write("""ASHMIS is a web-based aerospace intelligence platform designed to tr
 Using thermal visual imaging and computer vision, ASHMIS scans aircraft surfaces to detect:
 
 •	Structural cracks
+
 •	Delamination
 •	Corrosion
 •	Material fatigue and hidden defects
