@@ -174,3 +174,4 @@ st.markdown("""
             <p> Creator of ASHMIS </p>
 </div>
 """, unsafe_allow_html=True)
+""")
