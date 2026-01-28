@@ -8,7 +8,7 @@ import io
 from skimage import exposure, filters, feature, morphology, measure, color, util
 
 st.set_page_config(page_title="ASHMIS Interactive - Variant A", layout="wide")
-st.title("ASHMIS Interactive — Snapshot + Live Parameter Tuning (Variant A)")
+st.title("ASHMIS Structural Defect Detection (SDD) Dashboard — Snapshot + Live Parameter Tuning (Variant A)")
 
 st.text("This Dashboard allows you to upload or capture live images, automatically analyse them using AI driven thermal/visual"
         " Inspection Models and adjust key detection parameters in real-time for more accurate results.")
