@@ -105,6 +105,18 @@ Our work contributes directly to safer skies, stronger infrastructure, and a mor
 ________________________________________
 
 
+
+
+# Image
+
+image_path = "images/picture of plane1.webp"
+image = Image.open(image_path)
+
+# Fit image to the column width
+st.image(image, caption="Sample Image", use_container_width=True)
+
+
+
 """)
 
 st.subheader(" Beyond Maintenance ")
@@ -122,17 +134,6 @@ Built for Scale. Designed for Impact.
 
 """)
 
-
-
-
-
-# Image
-
-image_path = "images/picture of plane1.webp"
-image = Image.open(image_path)
-
-# Fit image to the column width
-st.image(image, caption="Sample Image", use_container_width=True)
 
 
 # --- END SECTION ---
