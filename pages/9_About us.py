@@ -145,32 +145,11 @@ Built for Scale. Designed for Impact.
 
 
 
-# --- END SECTION ---
-st.markdown("""
-    <style>
-    .zero {
-        text-align: center;
-        padding: 50px 100px;
-        background: linear-gradient(135deg, #0ea5e9, #0369a1);
-        color: red;
-        border-radius: 10px;
-        margin-bottom: 50px;
-    }
-    .hero h1 {
-        font-size: 3em;
-        font-weight: 800;
-    }
-    .hero p {
-        font-size: 1.3em;
-        color: #e0f2fe;
-    }
-    </style>
-""", unsafe_allow_html=True)
+# Image
 
-st.markdown("""
-<div class="hero">
-    <h1> Thanks for Visiting my Web Application</h1>
-    <p> Programmed by Ilim.A.Theophilus</p>
-            <p> Creator of ASHMIS </p>
-</div>
-""", unsafe_allow_html=True)
+
+image_path = "images/fighter jet pic.jpg"
+img = Image.open(image_path)
+
+# Fit image to the column width
+st.image(img, caption="Sample Image", use_container_width=True)
