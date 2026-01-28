@@ -73,6 +73,18 @@ ________________________________________
 
 st.subheader(" Our First Platform: Aircraft Structural Health Monitoring and Integrated System (ASHMIS) ")
 
+
+# Image
+
+
+image_path = "images/fighter jet pic.jpg"
+img = Image.open(image_path)
+
+# Fit image to the column width
+st.image(img, caption="Sample Image", use_container_width=True)
+
+
+
 st.write("""ASHMIS is a web-based aerospace intelligence platform designed to transform aircraft maintenance and inspection.
 Using thermal visual imaging and computer vision, ASHMIS scans aircraft surfaces to detect:
 •	Structural cracks
