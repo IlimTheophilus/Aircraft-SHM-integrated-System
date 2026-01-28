@@ -103,14 +103,13 @@ ________________________________________
 
 st.subheader(" Why It Matters ")
 
-st.text(""In many regions, including Africa, aircraft maintenance still relies heavily on: "")
+st.text("""In many regions, including Africa, aircraft maintenance still relies heavily on: 
 
-       st.text(""•	Manual inspections"")
-       st.text(""•	Time-based maintenance schedules"")
-       st.text(""•	Limited access to advanced diagnostic tools"")
+•	Manual inspections
+•	Time-based maintenance schedules
+•	Limited access to advanced diagnostic tools
      
-
-st.text (""" AeroIntel Systems Technologies aims to change that reality by building technologies that:
+ AeroIntel Systems Technologies aims to change that reality by building technologies that:
 •	Increase aviation safety
 •	Reduce operational costs
 •	Strengthen local Aerospace capability
