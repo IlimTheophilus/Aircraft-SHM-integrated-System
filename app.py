@@ -9,7 +9,7 @@ st.title(" Airframe Structural Health Monitoring Integrated System (ASHMIS) ")
 # Image
 
 
-image_path = "images/fighter jet pic.jpg"
+image_path = "images/ASHMIS img.png"
 img = Image.open(image_path)
 
 # Fit image to the column width
