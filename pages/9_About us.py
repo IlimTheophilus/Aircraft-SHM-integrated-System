@@ -9,7 +9,7 @@ st.title(" Aerospace Intelligent Systems (AIS) Technologies ")
 # Image
 
 
-image_path = "images/ASHMIS img.png"
+image_path = "images/Aero Intel img.png"
 img = Image.open(image_path)
 
 # Fit image to the column width
@@ -75,7 +75,6 @@ st.subheader(" Our First Platform: Aircraft Structural Health Monitoring and Int
 
 
 # Image
-
 
 image_path = "images/ASHMIS img.png"
 img = Image.open(image_path)
