@@ -86,6 +86,7 @@ st.image(img, caption="", use_container_width=True)
 
 st.write("""ASHMIS is a web-based aerospace intelligence platform designed to transform aircraft maintenance and inspection.
 Using thermal visual imaging and computer vision, ASHMIS scans aircraft surfaces to detect:
+
 •	Structural cracks
 •	Delamination
 •	Corrosion
