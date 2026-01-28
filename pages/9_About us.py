@@ -148,7 +148,7 @@ Built for Scale. Designed for Impact.
 # Image
 
 
-image_path = "images/fighter jet pic.jpg"
+image_path = "images/airplane-night-runway.jpg"
 img = Image.open(image_path)
 
 # Fit image to the column width
