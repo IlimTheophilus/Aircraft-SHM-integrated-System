@@ -66,10 +66,15 @@ ________________________________________
 st.subheader(" Our Mission ")
 
 st.write("""To design, develop, and deploy advanced aerospace and defense systems that combine:
+
 •	Aerospace engineering
+
 •	Intelligent sensing
+
 •	Data-driven decision systems
+
 •	Artificial Intelligence Autonomous and adaptive technologies
+
 into reliable, scalable solutions for civil aviation, defense, and strategic aerospace applications.
 ________________________________________
 
@@ -102,6 +107,7 @@ Using thermal visual imaging and computer vision, ASHMIS scans aircraft surfaces
 •	 Material fatigue and hidden defects
 
 """)
+
 
 st.write("""ASHMIS turns visual and thermal data into actionable engineering insight, enabling:
 
