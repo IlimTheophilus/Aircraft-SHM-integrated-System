@@ -6,6 +6,17 @@ from PIL import Image
 st.title(" Airframe Structural Health Monitoring Integrated System (ASHMIS) ")
 
 
+# Image
+
+
+image_path = "images/fighter jet pic.jpg"
+img = Image.open(image_path)
+
+# Fit image to the column width
+st.image(img, caption="Sample Image", use_container_width=True)
+
+
+
 # Text
 
 # Header
