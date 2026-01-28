@@ -104,6 +104,9 @@ ________________________________________
 st.subheader(" Why It Matters ")
 
 st.write("""In many regions, including Africa, aircraft maintenance still relies heavily on:
+         st.write(""•	Manual inspections"")
+         st.write("""")
+         st.write("""")
 •	Manual inspections
 •	Time-based maintenance schedules
 •	Limited access to advanced diagnostic tools
