@@ -13,7 +13,7 @@ image_path = "images/Aero Intel img.png"
 img = Image.open(image_path)
 
 # Fit image to the column width
-st.image(img, caption="Sample Image", use_container_width=True)
+st.image(img, caption="", use_container_width=True)
 
 
 
@@ -48,7 +48,7 @@ image_path = "images/fighter jet pic.jpg"
 img = Image.open(image_path)
 
 # Fit image to the column width
-st.image(img, caption="Sample Image", use_container_width=True)
+st.image(img, caption="", use_container_width=True)
 
 
 st.subheader(" Our Vision ")
@@ -80,7 +80,7 @@ image_path = "images/ASHMIS img.png"
 img = Image.open(image_path)
 
 # Fit image to the column width
-st.image(img, caption="Sample Image", use_container_width=True)
+st.image(img, caption="", use_container_width=True)
 
 
 
@@ -124,7 +124,7 @@ image_path = "images/global-air-travel-connectivity.jpg"
 image = Image.open(image_path)
 
 # Fit image to the column width
-st.image(image, caption="Sample Image", use_container_width=True)
+st.image(image, caption="", use_container_width=True)
 
 
 
@@ -152,4 +152,4 @@ image_path = "images/airplane-night-runway.jpg"
 img = Image.open(image_path)
 
 # Fit image to the column width
-st.image(img, caption="Sample Image", use_container_width=True)
+st.image(img, caption="", use_container_width=True)
