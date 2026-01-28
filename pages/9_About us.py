@@ -105,9 +105,9 @@ st.subheader(" Why It Matters ")
 
 st.write("""In many regions, including Africa, aircraft maintenance still relies heavily on:
        
-         st.write(""•	Manual inspections"")
-         st.write(""•	Time-based maintenance schedules"")
-         st.write(""•	Limited access to advanced diagnostic tools"")
+st.write(""•	Manual inspections"")
+st.write(""•	Time-based maintenance schedules"")
+st.write(""•	Limited access to advanced diagnostic tools"")
 
 AeroIntel Systems Technologies aims to change that reality by building technologies that:
 •	Increase aviation safety
