@@ -31,10 +31,15 @@ We build advanced aerospace systems that integrate engineering, sensing, data in
 Our focus is not a single product or domain, but the creation of scalable aerospace and defense capabilities that strengthen operational effectiveness, technological independence, and strategic readiness.
           Aerospace Intelligent Systems (AIS) Technologies recognizes aerospace technology as a strategic National asset.
 Our work contributes to:
+
 •	Enhanced Aircraft Maintenance and platform readiness
+
 •	Reduced dependence on foreign diagnostic and maintenance systems
+
 •	Stronger National Defense capabilities
+
 •	Low-Cost Indigenous Aerospace technology development
+
 By building local expertise and scalable systems, we aim to support National defense readiness while competing globally.
 ________________________________________
 
@@ -53,7 +58,8 @@ st.image(img, caption="", use_container_width=True)
 
 st.subheader(" Our Vision ")
 
-st.write("""To become a globally respected aerospace and defense systems company delivering intelligent technologies that enhance airspace safety, mission effectiveness, and national security, while enabling Nigeria as an emerging Aerospace nation to build and control it’s own critical capabilities.
+st.write("""To become a globally respected aerospace and defense systems company delivering intelligent technologies that enhance airspace safety, mission effectiveness, and national security,
+while enabling Nigeria as an emerging Aerospace nation to build and control it’s own critical capabilities.
 ________________________________________
 """)
 
@@ -88,8 +94,11 @@ st.write("""ASHMIS is a web-based aerospace intelligence platform designed to tr
 Using thermal visual imaging and computer vision, ASHMIS scans aircraft surfaces to detect:
 
 •	 Structural cracks
+
 •	 Delamination
+
 •	 Corrosion
+
 •	 Material fatigue and hidden defects
 
 
