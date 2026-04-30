@@ -24,7 +24,7 @@ If no defects are visible, say so clearly and explain what a healthy surface loo
 
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 model = genai.GenerativeModel(
-    model_name="gemini-1.5-flash",
+    model_name="model_name="gemini-2.0-flash",",
     system_instruction=SYSTEM_PROMPT
 )
 
