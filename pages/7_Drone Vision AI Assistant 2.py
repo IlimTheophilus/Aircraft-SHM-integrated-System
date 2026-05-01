@@ -1,7 +1,8 @@
 import streamlit as st
-from google import genai
-from PIL import Image
+from groq import Groq
+import base64
 import io
+from PIL import Image
 
 st.set_page_config(page_title="SHM Vision AI Assistant", layout="wide")
 st.title("Aircraft SHM Vision AI Assistant")
@@ -15,13 +16,16 @@ computer vision specialist. When given an image of an aircraft surface or compon
    surface anomalies, paint damage, or any other structural concerns
 3. Estimate the severity (low / medium / high / critical)
 4. Recommend appropriate maintenance action
-5. Reference relevant NDT standards where applicable
+5. Reference relevant NDT standards where applicable (MIL-HDBK, ASTM, etc.)
 
 Be precise, safety-focused, and use correct aerospace terminology.
 If no defects are visible, say so clearly and explain what a healthy surface looks like.
 """
 
-client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+
+def encode_image(image_bytes):
+    return base64.b64encode(image_bytes).decode("utf-8")
 
 st.subheader("Step 1 - Provide an Aircraft Surface Image")
 col1, col2 = st.columns(2)
@@ -47,23 +51,31 @@ if "vision_image" in st.session_state and st.session_state.vision_image:
 
     if not st.session_state.vision_analysis_done:
         with st.spinner("Running structural defect analysis..."):
-            response = client.models.generate_content(
-                model="gemini-2.0-flash-lite",
-                contents=[
+            b64_image = encode_image(st.session_state.vision_image)
+
+            response = client.chat.completions.create(
+                model="llama-4-scout-17b-16e-instruct",
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
                     {
                         "role": "user",
-                        "parts": [
-                            {"text": "Analyse this aircraft surface image for structural defects. Provide a detailed SHM inspection report."},
-                            {"inline_data": {
-                                "mime_type": "image/jpeg",
-                                "data": st.session_state.vision_image
-                            }}
+                        "content": [
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": f"data:image/jpeg;base64,{b64_image}"
+                                }
+                            },
+                            {
+                                "type": "text",
+                                "text": "Analyse this aircraft surface image for structural defects. Provide a detailed SHM inspection report."
+                            }
                         ]
                     }
                 ],
-                config={"system_instruction": SYSTEM_PROMPT}
+                max_tokens=1024
             )
-            st.session_state.initial_analysis = response.text
+            st.session_state.initial_analysis = response.choices[0].message.content
             st.session_state.vision_analysis_done = True
 
     st.markdown("### AI Structural Analysis Report")
@@ -73,11 +85,14 @@ if "vision_image" in st.session_state and st.session_state.vision_image:
     st.subheader("Step 2 - Ask Follow-up Questions")
 
     if "vision_chat_history" not in st.session_state:
-        st.session_state.vision_chat_history = []
+        st.session_state.vision_chat_history = [
+            {"role": "system", "content": SYSTEM_PROMPT}
+        ]
 
     for msg in st.session_state.vision_chat_history:
-        with st.chat_message(msg["role"]):
-            st.markdown(msg["content"])
+        if msg["role"] != "system":
+            with st.chat_message(msg["role"]):
+                st.markdown(msg["content"])
 
     user_q = st.chat_input("Ask a specific question about this image...")
 
@@ -88,26 +103,18 @@ if "vision_image" in st.session_state and st.session_state.vision_image:
 
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
-                contents = []
-                for msg in st.session_state.vision_chat_history:
-                    contents.append({
-                        "role": msg["role"],
-                        "parts": [{"text": msg["content"]}]
-                    })
-
-                response = client.models.generate_content(
-                    model="gemini-2.0-flash-lite",
-                    contents=contents,
-                    config={"system_instruction": SYSTEM_PROMPT}
+                response = client.chat.completions.create(
+                    model="llama-3.3-70b-versatile",
+                    messages=st.session_state.vision_chat_history,
+                    max_tokens=1024
                 )
-                reply = response.text
+                reply = response.choices[0].message.content
                 st.markdown(reply)
 
         st.session_state.vision_chat_history.append({"role": "assistant", "content": reply})
 
     if st.button("Clear image and start new analysis"):
-        for key in ["vision_image", "vision_analysis_done", "initial_analysis",
-                    "vision_chat_history"]:
+        for key in ["vision_image", "vision_analysis_done", "initial_analysis", "vision_chat_history"]:
             st.session_state.pop(key, None)
         st.rerun()
 
