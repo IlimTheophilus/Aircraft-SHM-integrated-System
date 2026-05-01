@@ -1,5 +1,5 @@
 import streamlit as st
-import google.generativeai as genai
+from google import genai
 
 st.set_page_config(page_title="SHM AI Assistant", layout="wide")
 st.title("Aircraft SHM AI Assistant")
@@ -18,18 +18,10 @@ Use correct aerospace terminology. Be precise, practical and safety-focused.
 If a question is completely unrelated to aircraft SHM or aerospace, politely refuse.
 """
 
-genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-
-model = genai.GenerativeModel(
-  model_name="gemini-1.5-flash-latest",
-    system_instruction=SYSTEM_PROMPT
-)
+client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
-
-if "gemini_chat" not in st.session_state:
-    st.session_state.gemini_chat = model.start_chat(history=[])
 
 for msg in st.session_state.chat_history:
     with st.chat_message(msg["role"]):
@@ -44,7 +36,22 @@ if user_prompt:
 
     with st.chat_message("assistant"):
         with st.spinner("Analysing..."):
-            response = st.session_state.gemini_chat.send_message(user_prompt)
+            # Build conversation contents
+            contents = []
+            for msg in st.session_state.chat_history:
+                contents.append({
+                    "role": msg["role"],
+                    "parts": [{"text": msg["content"]}]
+                })
+
+            response = client.models.generate_content(
+                model="gemini-2.0-flash-lite",
+                contents=contents,
+                config={
+                    "system_instruction": SYSTEM_PROMPT,
+                    "max_output_tokens": 1024,
+                }
+            )
             reply = response.text
             st.markdown(reply)
 
