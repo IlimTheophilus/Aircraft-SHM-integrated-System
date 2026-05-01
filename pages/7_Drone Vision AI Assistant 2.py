@@ -1,5 +1,5 @@
 import streamlit as st
-import google.generativeai as genai
+from google import genai
 from PIL import Image
 import io
 
@@ -21,12 +21,7 @@ Be precise, safety-focused, and use correct aerospace terminology.
 If no defects are visible, say so clearly and explain what a healthy surface looks like.
 """
 
-genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-
-model = genai.GenerativeModel(
-   model_name="gemini-1.5-flash-latest",
-    system_instruction=SYSTEM_PROMPT
-)
+client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 
 st.subheader("Step 1 - Provide an Aircraft Surface Image")
 col1, col2 = st.columns(2)
@@ -52,10 +47,22 @@ if "vision_image" in st.session_state and st.session_state.vision_image:
 
     if not st.session_state.vision_analysis_done:
         with st.spinner("Running structural defect analysis..."):
-            response = model.generate_content([
-                "Analyse this aircraft surface image for structural defects. Provide a detailed SHM inspection report.",
-                pil_img
-            ])
+            response = client.models.generate_content(
+                model="gemini-2.0-flash-lite",
+                contents=[
+                    {
+                        "role": "user",
+                        "parts": [
+                            {"text": "Analyse this aircraft surface image for structural defects. Provide a detailed SHM inspection report."},
+                            {"inline_data": {
+                                "mime_type": "image/jpeg",
+                                "data": st.session_state.vision_image
+                            }}
+                        ]
+                    }
+                ],
+                config={"system_instruction": SYSTEM_PROMPT}
+            )
             st.session_state.initial_analysis = response.text
             st.session_state.vision_analysis_done = True
 
@@ -63,13 +70,10 @@ if "vision_image" in st.session_state and st.session_state.vision_image:
     st.markdown(st.session_state.get("initial_analysis", ""))
 
     st.markdown("---")
-    st.subheader("Step 2 - Ask Follow-up Questions About This Image")
+    st.subheader("Step 2 - Ask Follow-up Questions")
 
     if "vision_chat_history" not in st.session_state:
         st.session_state.vision_chat_history = []
-
-    if "vision_gemini_chat" not in st.session_state:
-        st.session_state.vision_gemini_chat = model.start_chat(history=[])
 
     for msg in st.session_state.vision_chat_history:
         with st.chat_message(msg["role"]):
@@ -84,8 +88,18 @@ if "vision_image" in st.session_state and st.session_state.vision_image:
 
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
-                full_prompt = f"Referring to the aircraft surface image previously analysed:\n\n{user_q}"
-                response = st.session_state.vision_gemini_chat.send_message(full_prompt)
+                contents = []
+                for msg in st.session_state.vision_chat_history:
+                    contents.append({
+                        "role": msg["role"],
+                        "parts": [{"text": msg["content"]}]
+                    })
+
+                response = client.models.generate_content(
+                    model="gemini-2.0-flash-lite",
+                    contents=contents,
+                    config={"system_instruction": SYSTEM_PROMPT}
+                )
                 reply = response.text
                 st.markdown(reply)
 
@@ -93,7 +107,7 @@ if "vision_image" in st.session_state and st.session_state.vision_image:
 
     if st.button("Clear image and start new analysis"):
         for key in ["vision_image", "vision_analysis_done", "initial_analysis",
-                    "vision_chat_history", "vision_gemini_chat"]:
+                    "vision_chat_history"]:
             st.session_state.pop(key, None)
         st.rerun()
 
