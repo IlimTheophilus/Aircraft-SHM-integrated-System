@@ -1,5 +1,5 @@
 import streamlit as st
-from google import genai
+from groq import Groq
 
 st.set_page_config(page_title="SHM AI Assistant", layout="wide")
 st.title("Aircraft SHM AI Assistant")
@@ -18,14 +18,17 @@ Use correct aerospace terminology. Be precise, practical and safety-focused.
 If a question is completely unrelated to aircraft SHM or aerospace, politely refuse.
 """
 
-client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 
 if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []
+    st.session_state.chat_history = [
+        {"role": "system", "content": SYSTEM_PROMPT}
+    ]
 
 for msg in st.session_state.chat_history:
-    with st.chat_message(msg["role"]):
-        st.markdown(msg["content"])
+    if msg["role"] != "system":
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
 
 user_prompt = st.chat_input("Ask about aircraft SHM, defects, sensors, or maintenance...")
 
@@ -36,23 +39,12 @@ if user_prompt:
 
     with st.chat_message("assistant"):
         with st.spinner("Analysing..."):
-            # Build conversation contents
-            contents = []
-            for msg in st.session_state.chat_history:
-                contents.append({
-                    "role": msg["role"],
-                    "parts": [{"text": msg["content"]}]
-                })
-
-            response = client.models.generate_content(
-                model="gemini-2.0-flash-lite",
-                contents=contents,
-                config={
-                    "system_instruction": SYSTEM_PROMPT,
-                    "max_output_tokens": 1024,
-                }
+            response = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=st.session_state.chat_history,
+                max_tokens=1024
             )
-            reply = response.text
+            reply = response.choices[0].message.content
             st.markdown(reply)
 
     st.session_state.chat_history.append({"role": "assistant", "content": reply})
