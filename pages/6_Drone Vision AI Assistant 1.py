@@ -21,7 +21,7 @@ If a question is completely unrelated to aircraft SHM or aerospace, politely ref
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 
 model = genai.GenerativeModel(
-   model_name="gemini-1.5-flash-8b",
+  model_name="gemini-1.5-flash-latest",
     system_instruction=SYSTEM_PROMPT
 )
 
