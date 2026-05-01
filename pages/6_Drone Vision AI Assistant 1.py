@@ -78,8 +78,10 @@ deeply and accurately with any aerospace question thrown at you and you have a s
 to add a human touch, and to feel alive to the users to kind of alleviate work stress and fatigue.
 
 Only politely decline questions that are completely unrelated to aerospace, aviation, 
-rocketry, space, or related engineering disciplines.
+rocketry, space, or related engineering disciplines, If no defects are visible, say so clearly and explain what a healthy surface looks like.
 """
+
+
 client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 
 if "chat_history" not in st.session_state:
