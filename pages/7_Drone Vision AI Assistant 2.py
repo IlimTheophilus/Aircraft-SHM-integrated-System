@@ -54,7 +54,7 @@ if "vision_image" in st.session_state and st.session_state.vision_image:
             b64_image = encode_image(st.session_state.vision_image)
 
             response = client.chat.completions.create(
-                model="llama-4-scout-17b-16e-instruct",
+               model="meta-llama/llama-4-scout-17b-16e-instruct",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {
