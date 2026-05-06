@@ -1,319 +1,439 @@
-# ashmi_interactive_variantA.py
 import streamlit as st
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 import io
-
-# scikit-image imports
-from skimage import exposure, filters, feature, morphology, measure, color, util
-
-st.set_page_config(page_title="ASHMIS Interactive - Variant A", layout="wide")
-st.title("ASHMIS Structural Defect Detection (SDD) Dashboard — Snapshot + Live Parameter Tuning (Variant A)")
-
-st.text("This Dashboard allows you to upload or capture live images, automatically analyse them using AI driven thermal/visual"
-        " Inspection Models and adjust key detection parameters in real-time for more accurate results.")
-
-st.subheader("""
-Take a Picture in Realtime  or Upload an Image for Structural Health Analysis.
-     """)
-
-st.text("""The original image will be stored.
-Adjust the image-processing sliders and the processed/annotated image updates **automatically**.
-No need to press a 'Run' button each time.
-""")
-
-# --- Helpers ---
-
-
-def pil_to_array(pil_img: Image.Image):
-    """Return an HxWx3 uint8 numpy array (RGB)."""
-    return np.array(pil_img.convert("RGB"))
-
-
-def array_to_pil(rgb_arr: np.ndarray):
-    """Convert HxWx3 uint8 RGB numpy array to PIL Image."""
-    return Image.fromarray(rgb_arr.astype(np.uint8))
-
-
-def draw_annotations_on_array(rgb_arr: np.ndarray, candidates, show_labels=True):
-    """Draw rectangles and labels on an RGB numpy array using PIL."""
+from skimage import exposure, filters, feature, morphology, measure, color
+st.set_page_config(
+    page_title="ASHMIS — SDD Dashboard",
+    layout="wide", page_icon="🔍"
+)
+st.markdown("""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+.stApp { background: #020c1b; color: #e2e8f0; }
+.block-container { padding: 1.5rem 2rem !important; }
+section[data-testid="stSidebar"] { background: #0a1628 !important; border-right: 1px solid #0ea5e920; }
+/* ── Page Header ── */
+.sdd-header {
+    background: linear-gradient(135deg, #0a1628, #0f2744);
+    border: 1px solid #0ea5e920;
+    border-radius: 12px; padding: 1.8rem 2rem;
+    margin-bottom: 1.5rem; position: relative; overflow: hidden;
+}
+.sdd-header::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    background: linear-gradient(90deg, transparent, #0ea5e9, #06b6d4, transparent);
+}
+.sdd-header-top {
+    display: flex; justify-content: space-between;
+    align-items: flex-start; flex-wrap: wrap; gap: 1rem;
+}
+.sdd-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.4rem; font-weight: 700; color: #fff;
+}
+.sdd-title span { color: #0ea5e9; }
+.sdd-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem; color: #64748b;
+    letter-spacing: 1px; margin-top: 0.3rem;
+}
+.sdd-badges { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+.sdd-badge {
+    background: rgba(14,165,233,0.1);
+    border: 1px solid rgba(14,165,233,0.25);
+    color: #38bdf8; padding: 0.25rem 0.7rem;
+    border-radius: 4px; font-size: 0.68rem;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 1px; text-transform: uppercase; font-weight: 600;
+}
+/* ── Panels ── */
+.panel {
+    background: #0a1628;
+    border: 1px solid #0ea5e915;
+    border-radius: 12px; padding: 1.4rem;
+    height: 100%;
+}
+.panel-header {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.65rem; color: #38bdf8;
+    letter-spacing: 3px; text-transform: uppercase;
+    margin-bottom: 1.2rem; display: flex;
+    align-items: center; gap: 0.5rem;
+}
+.panel-divider {
+    border: none; border-top: 1px solid #0ea5e910;
+    margin: 1rem 0;
+}
+/* ── Control Sliders styling ── */
+.stSlider > div > div { background: #0ea5e920 !important; }
+.stSlider > div > div > div { background: #0ea5e9 !important; }
+label { color: #94a3b8 !important; font-family: 'Inter', sans-serif !important; font-size: 0.8rem !important; }
+.stSelectbox > div > div { background: #0f2744 !important; border: 1px solid #0ea5e920 !important; color: #e2e8f0 !important; }
+/* ── Upload Area ── */
+.stCameraInput, .stFileUploader {
+    background: #0a1628 !important;
+    border: 1px solid #0ea5e920 !important;
+    border-radius: 10px !important;
+}
+/* ── Metric Cards ── */
+.metric-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.8rem; margin: 1rem 0;
+}
+.metric-card {
+    background: #0f2744;
+    border: 1px solid #0ea5e915;
+    border-radius: 8px; padding: 1rem;
+    text-align: center;
+}
+.metric-val {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.6rem; font-weight: 700;
+    color: #0ea5e9;
+}
+.metric-lbl {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.65rem; color: #64748b;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    margin-top: 0.3rem;
+}
+/* ── Status Badge ── */
+.detect-status {
+    padding: 0.6rem 1.2rem; border-radius: 8px;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.75rem; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    text-align: center; margin: 0.8rem 0;
+}
+.detect-status.found {
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.4);
+    color: #f87171;
+}
+.detect-status.clear {
+    background: rgba(16,185,129,0.1);
+    border: 1px solid rgba(16,185,129,0.4);
+    color: #34d399;
+}
+/* ── Detection Table ── */
+.detect-table {
+    width: 100%; border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem; margin-top: 0.8rem;
+}
+.detect-table th {
+    background: #0f2744; color: #38bdf8;
+    padding: 0.5rem 0.8rem; text-align: left;
+    font-size: 0.65rem; letter-spacing: 1px;
+    text-transform: uppercase; border-bottom: 1px solid #0ea5e920;
+}
+.detect-table td {
+    padding: 0.5rem 0.8rem; color: #94a3b8;
+    border-bottom: 1px solid #0ea5e908;
+}
+.detect-table tr:hover td { background: #0f2744; }
+.sev-crack      { color: #f87171; font-weight: 700; }
+.sev-corrosion  { color: #fb923c; font-weight: 700; }
+.sev-delam      { color: #fbbf24; font-weight: 700; }
+.sev-candidate  { color: #94a3b8; }
+/* ── Param Group ── */
+.param-group {
+    background: #0f2744;
+    border: 1px solid #0ea5e910;
+    border-radius: 8px; padding: 1rem;
+    margin-bottom: 0.8rem;
+}
+.param-group-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.6rem; color: #38bdf8;
+    letter-spacing: 2px; text-transform: uppercase;
+    margin-bottom: 0.8rem;
+}
+/* ── Buttons ── */
+.stButton > button {
+    background: linear-gradient(135deg, #0369a1, #0ea5e9) !important;
+    color: white !important; border: none !important;
+    border-radius: 8px !important; font-family: 'Inter', sans-serif !important;
+    font-weight: 600 !important; letter-spacing: 1px !important;
+    font-size: 0.82rem !important;
+}
+.stButton > button:hover {
+    box-shadow: 0 0 20px rgba(14,165,233,0.4) !important;
+    transform: translateY(-1px) !important;
+}
+.stDownloadButton > button {
+    background: rgba(16,185,129,0.15) !important;
+    color: #34d399 !important;
+    border: 1px solid rgba(16,185,129,0.3) !important;
+    border-radius: 8px !important;
+}
+/* ── Info box ── */
+.info-msg {
+    background: rgba(14,165,233,0.06);
+    border: 1px solid rgba(14,165,233,0.15);
+    border-left: 3px solid #0ea5e9;
+    border-radius: 6px; padding: 0.8rem 1rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem; color: #64748b; margin: 0.5rem 0;
+}
+#MainMenu, footer, header { visibility: hidden; }
+</style>
+""", unsafe_allow_html=True)
+# ── Helpers ──────────────────────────────────────────────────────────────────
+def pil_to_array(img): return np.array(img.convert("RGB"))
+def array_to_pil(arr): return Image.fromarray(arr.astype(np.uint8))
+def draw_annotations(rgb_arr, candidates, show_labels=True):
     pil = array_to_pil(rgb_arr)
     draw = ImageDraw.Draw(pil)
-
-    try:
-        font = ImageFont.load_default()
-    except Exception:
-        font = None
-
+    colors = {"crack": (239,68,68), "corrosion": (251,146,60),
+               "delamination": (251,191,36), "candidate": (148,163,184)}
+    try: font = ImageFont.load_default()
+    except: font = None
     for c in candidates:
-        x0, y0, x1, y1 = c["box"]
-
-        # Draw bounding box
-        draw.rectangle([x0, y0, x1, y1], outline=(255, 0, 0), width=2)
-
+        x0,y0,x1,y1 = c["box"]
+        col = colors.get(c.get("label","candidate"), (148,163,184))
+        draw.rectangle([x0,y0,x1,y1], outline=col, width=2)
         if show_labels:
-            lbl = c.get("label", "candidate")
-            if c.get("score") is not None:
-                lbl = f"{lbl} {c['score']:.2f}"
-
-            # -------------------------------
-            # FIXED: Replace textsize() → textbbox()
-            # -------------------------------
+            lbl = c.get("label","candidate")
+            if c.get("score") is not None: lbl = f"{lbl} {c['score']:.2f}"
             if font:
-                bbox = draw.textbbox((0, 0), lbl, font=font)
-                text_w = bbox[2] - bbox[0]
-                text_h = bbox[3] - bbox[1]
-            else:
-                # fallback if font fails
-                text_w = len(lbl) * 6
-                text_h = 10
-
-            text_x = x0
-            text_y = max(0, y0 - text_h - 3)
-
-            # background rectangle
-            draw.rectangle(
-                [text_x, text_y, text_x + text_w + 4, text_y + text_h + 2],
-                fill=(0, 0, 0)
-            )
-
-            # label text
-            draw.text((text_x + 2, text_y + 1), lbl,
-                      fill=(255, 255, 255), font=font)
-
+                bbox = draw.textbbox((0,0), lbl, font=font)
+                tw, th = bbox[2]-bbox[0], bbox[3]-bbox[1]
+            else: tw, th = len(lbl)*6, 10
+            tx, ty = x0, max(0, y0-th-3)
+            draw.rectangle([tx,ty,tx+tw+4,ty+th+2], fill=(0,0,0,200))
+            draw.text((tx+2,ty+1), lbl, fill=col, font=font)
     return np.array(pil)
-
-
-def detect_candidates(rgb_arr: np.ndarray, params):
-    """
-    Input: rgb_arr (HxWx3 uint8)
-    Returns: edge_map (PIL-friendly array or boolean array), candidates list
-    """
-    # Convert to grayscale float (0..1)
-    gray = color.rgb2gray(rgb_arr)  # float64 [0,1]
-
-    # CLAHE / adaptive histogram equalization
-    # skimage exposure.equalize_adapthist expects clip_limit and kernel_size (tile size)
+def detect_candidates(rgb_arr, params):
+    gray = color.rgb2gray(rgb_arr)
     try:
-        clahe = exposure.equalize_adapthist(gray, clip_limit=max(0.01, params["clahe_clip"]/8.0),
-                                            kernel_size=(params["clahe_tile"], params["clahe_tile"]))
-    except TypeError:
-        # fallback if kernel_size not supported in this skimage version
         clahe = exposure.equalize_adapthist(
-            gray, clip_limit=max(0.01, params["clahe_clip"]/8.0))
-
-    # Gaussian blur (if kernel>1)
-    blur_k = params["blur_k"]
-    if blur_k > 1:
-        sigma = max(0.3, blur_k / 2.0)
-        blurred = filters.gaussian(clahe, sigma=sigma)
-    else:
-        blurred = clahe
-
-    # Canny - thresholds need to be normalized to [0,1] (we assume slider used 0-255)
-    low_t = np.clip(params["canny_low"] / 255.0, 0.0, 1.0)
-    high_t = np.clip(params["canny_high"] / 255.0, 0.0, 1.0)
-    # skimage.feature.canny has low_threshold and high_threshold arguments in [0,1]
-    try:
-        edges = feature.canny(
-            blurred, low_threshold=low_t, high_threshold=high_t)
+            gray, clip_limit=max(0.01, params["clahe_clip"]/8.0),
+            kernel_size=(params["clahe_tile"], params["clahe_tile"]))
     except TypeError:
-        # older versions may not accept both thresholds; fall back to sigma-based
-        edges = feature.canny(blurred, sigma=1.0)
-
-    # Morphological closing
+        clahe = exposure.equalize_adapthist(gray, clip_limit=max(0.01, params["clahe_clip"]/8.0))
+    blur_k = params["blur_k"]
+    blurred = filters.gaussian(clahe, sigma=max(0.3,blur_k/2.0)) if blur_k>1 else clahe
+    low_t  = np.clip(params["canny_low"]/255.0, 0.0, 1.0)
+    high_t = np.clip(params["canny_high"]/255.0, 0.0, 1.0)
+    try:    edges = feature.canny(blurred, low_threshold=low_t, high_threshold=high_t)
+    except: edges = feature.canny(blurred, sigma=1.0)
     morph_k = max(1, int(params["morph_k"]))
-    selem = morphology.square(morph_k)
-    closed = edges.copy()
+    selem   = morphology.square(morph_k)
+    closed  = edges.copy()
     for _ in range(max(1, params["morph_iter"])):
         closed = morphology.closing(closed, selem)
-
-    # Label connected regions and compute properties
     label_img = measure.label(closed)
-    regions = measure.regionprops(label_img)
-
+    regions   = measure.regionprops(label_img)
     h, w = gray.shape
     candidates = []
     for region in regions:
         area = region.area
-        if area < params["min_area"] or area > params["max_area"]:
-            continue
-        minr, minc, maxr, maxc = region.bbox  # rows(y), cols(x)
-        # pad
-        pad = int(max(2, 0.02 * max(w, h)))
-        x0 = max(0, minc - pad)
-        y0 = max(0, minr - pad)
-        x1 = min(w-1, maxc + pad)
-        y1 = min(h-1, maxr + pad)
-        # compute heuristics
-        ww = max(1, (x1 - x0))
-        hh = max(1, (y1 - y0))
-        aspect = ww / (hh + 1e-8)
-        # mean intensity from CLAHE result (0..1) convert to 0..255
-        mean_intensity = int(
-            np.mean(clahe[y0:y1, x0:x1]) * 255) if (y1 > y0 and x1 > x0) else 255
-        label = "candidate"
-        score = None
+        if area < params["min_area"] or area > params["max_area"]: continue
+        minr,minc,maxr,maxc = region.bbox
+        pad = int(max(2, 0.02*max(w,h)))
+        x0,y0 = max(0,minc-pad), max(0,minr-pad)
+        x1,y1 = min(w-1,maxc+pad), min(h-1,maxr+pad)
+        ww,hh = max(1,x1-x0), max(1,y1-y0)
+        aspect = ww/(hh+1e-8)
+        mean_int = int(np.mean(clahe[y0:y1,x0:x1])*255) if (y1>y0 and x1>x0) else 255
         if aspect > params["aspect_crack_thresh"]:
-            label = "crack"
-            score = min(1.0, area / (params["max_area"] + 1e-6))
-        elif mean_intensity < params["dark_thresh"] and area > params["delam_area_thresh"]:
-            label = "corrosion"
-            score = min(1.0, area / (params["max_area"] + 1e-6))
+            label, score = "crack", min(1.0, area/(params["max_area"]+1e-6))
+        elif mean_int < params["dark_thresh"] and area > params["delam_area_thresh"]:
+            label, score = "corrosion", min(1.0, area/(params["max_area"]+1e-6))
         elif area > params["delam_area_thresh"]:
-            label = "delamination"
-            score = min(1.0, area / (params["max_area"] + 1e-6))
-        candidates.append(
-            {"box": (x0, y0, x1, y1), "area": area, "label": label, "score": score})
-
-    # Prepare edge map for display: convert boolean to uint8 grayscale 0..255
-    edge_map_disp = (closed.astype(np.uint8) * 255)
-    return edge_map_disp, candidates
-
-
-# --- Session state for stored image ---
+            label, score = "delamination", min(1.0, area/(params["max_area"]+1e-6))
+        else:
+            label, score = "candidate", None
+        candidates.append({"box":(x0,y0,x1,y1),"area":area,"label":label,"score":score})
+    edge_map = (closed.astype(np.uint8)*255)
+    return edge_map, candidates
+# ── Session State ─────────────────────────────────────────────────────────────
 if "stored_image_bytes" not in st.session_state:
     st.session_state.stored_image_bytes = None
-
-# --- UI: left column for capture/upload, right column for controls+results ---
-col1, col2 = st.columns([1, 2])
-
-with col1:
-    st.subheader("Capture / Upload")
-    st.markdown(
-        "Take a snapshot with your webcam, or upload a file. The image will be stored for live tuning.")
-    cam = st.camera_input("Take a photo (allow camera access)")
-    uploaded = st.file_uploader("Or upload an image", type=[
-                                "jpg", "jpeg", "png", "bmp"])
-    if st.button("Clear stored image"):
-        st.session_state.stored_image_bytes = None
-        st.success("Stored image cleared")
-
-    # store whichever is most recent (camera has priority)
+# ── Page Header ───────────────────────────────────────────────────────────────
+st.markdown("""
+<div class="sdd-header">
+    <div class="sdd-header-top">
+        <div>
+            <div class="sdd-title">ASHMIS <span>SDD</span> Dashboard</div>
+            <div class="sdd-subtitle">STRUCTURAL DEFECT DETECTION — SNAPSHOT + LIVE PARAMETER TUNING</div>
+        </div>
+        <div class="sdd-badges">
+            <span class="sdd-badge">◉ VARIANT A</span>
+            <span class="sdd-badge">AI-Assisted</span>
+            <span class="sdd-badge">Real-Time</span>
+            <span class="sdd-badge">NCAA Compliant</span>
+        </div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+# ── Main Layout ───────────────────────────────────────────────────────────────
+left_col, right_col = st.columns([1, 2], gap="medium")
+# ── LEFT — Capture / Upload ───────────────────────────────────────────────────
+with left_col:
+    st.markdown('<div class="panel">', unsafe_allow_html=True)
+    st.markdown('<div class="panel-header">📷 &nbsp; IMAGE ACQUISITION</div>', unsafe_allow_html=True)
+    st.markdown('<div class="info-msg">Capture with webcam or upload an image. The original is stored for live analysis.</div>', unsafe_allow_html=True)
+    cam      = st.camera_input("Live Webcam Capture")
+    uploaded = st.file_uploader("Upload Image File", type=["jpg","jpeg","png","bmp"])
     if cam is not None:
         st.session_state.stored_image_bytes = cam.getvalue()
     elif uploaded is not None:
         st.session_state.stored_image_bytes = uploaded.getvalue()
-
-    if st.session_state.stored_image_bytes is None:
-        st.info("No stored image yet. Capture or upload one to start tuning.")
-    else:
-        # show stored image preview
+    if st.session_state.stored_image_bytes:
         try:
             img = Image.open(io.BytesIO(st.session_state.stored_image_bytes))
-            st.image(img, caption="Stored original image",
-                     use_column_width=True)
+            st.image(img, caption="Stored Source Image", use_container_width=True)
         except Exception as e:
-            st.error(f"Could not open stored image: {e}")
-
-with col2:
-    st.subheader("Live Image Parameters Tuning (changes apply instantly)")
-    # Processing parameters
-    clahe_clip = st.slider("CLAHE clip limit", 1.0, 8.0, 2.0, 0.1)
-    clahe_tile = st.selectbox("CLAHE tile grid", [4, 8, 16], index=1)
-    blur_k = st.selectbox("Gaussian blur kernel (odd)",
-                          [1, 3, 5, 7, 9], index=1)
-    canny_low = st.slider("Canny low threshold", 1, 255, 50)
-    canny_high = st.slider("Canny high threshold", 1, 500, 150)
-    morph_k = st.selectbox("Morph kernel size", [3, 5, 7, 9], index=0)
-    morph_iter = st.slider("Morph close iterations", 0, 5, 1)
-    min_area = st.number_input(
-        "Min contour area (px)", min_value=1, max_value=100000, value=50, step=1)
-    max_area = st.number_input(
-        "Max contour area (px)", min_value=100, max_value=10000000, value=8000, step=100)
-    aspect_crack_thresh = st.slider(
-        "Aspect ratio threshold for 'crack' (w/h)", 1.5, 50.0, 6.0, 0.5)
-    dark_thresh = st.slider(
-        "Mean-intensity threshold (dark) for corrosion heuristic (0-255)", 0, 255, 60)
-    delam_area_thresh = st.number_input(
-        "Area threshold for delamination heuristic (px)", min_value=10, max_value=100000, value=1500, step=10)
-    show_labels = st.checkbox("Show labels on boxes", value=True)
-    show_edge_map = st.checkbox("Show edge map (debug)", value=False)
-    download_name = st.text_input(
-        "Download file name", value="ashmi_annotated.jpg")
-
-    # Build params dict
+            st.error(f"Image load error: {e}")
+    else:
+        st.markdown('<div class="info-msg">⬆ No image loaded. Capture or upload above.</div>', unsafe_allow_html=True)
+    if st.button("🗑  Clear Image", use_container_width=True):
+        st.session_state.stored_image_bytes = None
+        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
+# ── RIGHT — Controls + Results ────────────────────────────────────────────────
+with right_col:
+    st.markdown('<div class="panel">', unsafe_allow_html=True)
+    st.markdown('<div class="panel-header">⚙️ &nbsp; DETECTION PARAMETERS — LIVE TUNING</div>', unsafe_allow_html=True)
+    # ── Parameter Controls ──
+    p_col1, p_col2, p_col3 = st.columns(3)
+    with p_col1:
+        st.markdown('<div class="param-group">', unsafe_allow_html=True)
+        st.markdown('<div class="param-group-title">▸ Image Enhancement</div>', unsafe_allow_html=True)
+        clahe_clip = st.slider("CLAHE Clip Limit", 1.0, 8.0, 2.0, 0.1)
+        clahe_tile = st.selectbox("CLAHE Tile Grid", [4,8,16], index=1)
+        blur_k     = st.selectbox("Gaussian Blur Kernel", [1,3,5,7,9], index=1)
+        st.markdown('</div>', unsafe_allow_html=True)
+    with p_col2:
+        st.markdown('<div class="param-group">', unsafe_allow_html=True)
+        st.markdown('<div class="param-group-title">▸ Edge Detection</div>', unsafe_allow_html=True)
+        canny_low  = st.slider("Canny Low Threshold", 1, 255, 50)
+        canny_high = st.slider("Canny High Threshold", 1, 500, 150)
+        morph_k    = st.selectbox("Morph Kernel Size", [3,5,7,9], index=0)
+        morph_iter = st.slider("Morph Iterations", 0, 5, 1)
+        st.markdown('</div>', unsafe_allow_html=True)
+    with p_col3:
+        st.markdown('<div class="param-group">', unsafe_allow_html=True)
+        st.markdown('<div class="param-group-title">▸ Defect Classifier</div>', unsafe_allow_html=True)
+        min_area            = st.number_input("Min Contour Area (px)", 1, 100000, 50, 1)
+        max_area            = st.number_input("Max Contour Area (px)", 100, 10000000, 8000, 100)
+        aspect_crack_thresh = st.slider("Crack Aspect Ratio", 1.5, 50.0, 6.0, 0.5)
+        dark_thresh         = st.slider("Corrosion Dark Threshold", 0, 255, 60)
+        delam_area_thresh   = st.number_input("Delamination Area Threshold (px)", 10, 100000, 1500, 10)
+        st.markdown('</div>', unsafe_allow_html=True)
+    # Display options
+    d_col1, d_col2, d_col3 = st.columns(3)
+    with d_col1: show_labels   = st.checkbox("Show Labels", value=True)
+    with d_col2: show_edge_map = st.checkbox("Show Edge Map", value=False)
+    with d_col3: download_name = st.text_input("Download Filename", "ASHMIS_annotated.jpg")
+    st.markdown('<hr class="panel-divider">', unsafe_allow_html=True)
+    # ── Results ──
     params = {
-        "clahe_clip": float(clahe_clip),
-        "clahe_tile": int(clahe_tile),
-        "blur_k": int(blur_k),
-        "canny_low": int(canny_low),
-        "canny_high": int(canny_high),
-        "morph_k": int(morph_k),
-        "morph_iter": int(morph_iter),
-        "min_area": int(min_area),
-        "max_area": int(max_area),
-        "aspect_crack_thresh": float(aspect_crack_thresh),
-        "dark_thresh": int(dark_thresh),
-        "delam_area_thresh": int(delam_area_thresh)
+        "clahe_clip": float(clahe_clip), "clahe_tile": int(clahe_tile),
+        "blur_k": int(blur_k), "canny_low": int(canny_low),
+        "canny_high": int(canny_high), "morph_k": int(morph_k),
+        "morph_iter": int(morph_iter), "min_area": int(min_area),
+        "max_area": int(max_area), "aspect_crack_thresh": float(aspect_crack_thresh),
+        "dark_thresh": int(dark_thresh), "delam_area_thresh": int(delam_area_thresh)
     }
-
-    # If we have a stored image, process it automatically
-    if st.session_state.stored_image_bytes is not None:
+    if st.session_state.stored_image_bytes:
         try:
-            pil_img = Image.open(io.BytesIO(
-                st.session_state.stored_image_bytes)).convert("RGB")
+            pil_img = Image.open(io.BytesIO(st.session_state.stored_image_bytes)).convert("RGB")
             rgb_arr = pil_to_array(pil_img)
-            # optional resize for very large images (keeps responsiveness)
             max_side = 1600
             h, w = rgb_arr.shape[:2]
-            if max(h, w) > max_side:
-                scale = max_side / float(max(h, w))
-                new_w = int(w * scale)
-                new_h = int(h * scale)
-                pil_img = pil_img.resize((new_w, new_h), Image.LANCZOS)
+            if max(h,w) > max_side:
+                scale = max_side/float(max(h,w))
+                pil_img = pil_img.resize((int(w*scale),int(h*scale)), Image.LANCZOS)
                 rgb_arr = pil_to_array(pil_img)
-
-            # detection & annotation (runs every time any widget changes)
             edge_map, candidates = detect_candidates(rgb_arr, params)
-            annotated_arr = draw_annotations_on_array(
-                rgb_arr, candidates, show_labels=show_labels)
-
-            # Layout: show original, annotated, and optionally edge map
-            st.markdown("### Results")
-            col_a, col_b = st.columns(2)
-            with col_a:
-                st.image(pil_img, caption="Original (stored)",
-                         use_column_width=True)
-            with col_b:
-                st.image(array_to_pil(annotated_arr),
-                         caption="Annotated (live)", use_column_width=True)
-
-            if show_edge_map:
-                st.markdown("Edge map (after CLAHE -> Canny -> Morph close)")
-                # edge_map is uint8 0..255
-                st.image(Image.fromarray(edge_map), use_column_width=True)
-
-            # Download annotated image
-            buf = io.BytesIO()
-            pil_out = array_to_pil(annotated_arr)
-            pil_out.save(buf, format="JPEG")
-            buf.seek(0)
-            st.download_button("Download annotated image", data=buf,
-                               file_name=download_name, mime="image/jpeg")
-
-            # Also show detection summary table
-            if len(candidates) > 0:
-                st.markdown(
-                    f"**Detected {len(candidates)} candidate(s)** — first few:")
-                for i, c in enumerate(candidates[:8]):
-                    lbl = c.get("label", "candidate")
-                    area = int(c.get("area", 0))
-                    st.write(f"- {i+1}: {lbl}, area={area}px, box={c['box']}")
+            annotated_arr = draw_annotations(rgb_arr, candidates, show_labels)
+            # ── Metrics ──
+            n_cracks  = sum(1 for c in candidates if c['label']=='crack')
+            n_corr    = sum(1 for c in candidates if c['label']=='corrosion')
+            n_delam   = sum(1 for c in candidates if c['label']=='delamination')
+            n_total   = len(candidates)
+            st.markdown(f"""
+            <div class="metric-row">
+                <div class="metric-card">
+                    <div class="metric-val" style="color:#f87171;">{n_cracks}</div>
+                    <div class="metric-lbl">Cracks</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-val" style="color:#fb923c;">{n_corr}</div>
+                    <div class="metric-lbl">Corrosion</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-val" style="color:#fbbf24;">{n_delam}</div>
+                    <div class="metric-lbl">Delamination</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-val">{n_total}</div>
+                    <div class="metric-lbl">Total Candidates</div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            # Status
+            if n_total > 0:
+                st.markdown(f'<div class="detect-status found">⚠ STRUCTURAL ANOMALIES DETECTED — {n_total} CANDIDATE(S) FOUND</div>', unsafe_allow_html=True)
             else:
-                st.info("No candidates detected with current parameters.")
+                st.markdown('<div class="detect-status clear">✔ SCAN COMPLETE — NO ANOMALIES DETECTED</div>', unsafe_allow_html=True)
+            # Images
+            img_col1, img_col2 = st.columns(2)
+            with img_col1:
+                st.markdown('<div style="font-family:\'Orbitron\',monospace;font-size:0.6rem;color:#38bdf8;letter-spacing:2px;margin-bottom:0.5rem;">▸ ORIGINAL IMAGE</div>', unsafe_allow_html=True)
+                st.image(pil_img, use_container_width=True)
+            with img_col2:
+                st.markdown('<div style="font-family:\'Orbitron\',monospace;font-size:0.6rem;color:#38bdf8;letter-spacing:2px;margin-bottom:0.5rem;">▸ ANNOTATED — LIVE DETECTION</div>', unsafe_allow_html=True)
+                st.image(array_to_pil(annotated_arr), use_container_width=True)
+            if show_edge_map:
+                st.markdown('<div style="font-family:\'Orbitron\',monospace;font-size:0.6rem;color:#38bdf8;letter-spacing:2px;margin:0.8rem 0 0.4rem;">▸ EDGE MAP — CLAHE → CANNY → MORPH CLOSE</div>', unsafe_allow_html=True)
+                st.image(Image.fromarray(edge_map), use_container_width=True)
+            # Detection Table
+            if candidates:
+                rows = ""
+                for i, c in enumerate(candidates[:12]):
+                    lbl = c.get('label','candidate')
+                    cls = f"sev-{lbl.replace(' ','-')}"
+                    score = f"{c['score']:.3f}" if c.get('score') is not None else "—"
+                    rows += f"""<tr>
+                        <td>{i+1}</td>
+                        <td class="{cls}">{lbl.upper()}</td>
+                        <td>{int(c.get('area',0))} px²</td>
+                        <td>{score}</td>
+                        <td style="font-size:0.7rem;">{c['box']}</td>
+                    </tr>"""
+                st.markdown(f"""
+                <table class="detect-table">
+                    <thead>
+                        <tr>
+                            <th>#</th><th>Defect Type</th>
+                            <th>Area</th><th>Score</th><th>Bounding Box</th>
+                        </tr>
+                    </thead>
+                    <tbody>{rows}</tbody>
+                </table>
+                """, unsafe_allow_html=True)
+            # Download
+            st.markdown("<div style='margin-top:1rem;'>", unsafe_allow_html=True)
+            buf = io.BytesIO()
+            array_to_pil(annotated_arr).save(buf, format="JPEG")
+            buf.seek(0)
+            st.download_button(
+                "⬇️  Download Annotated Image",
+                data=buf,
+                file_name=download_name,
+                mime="image/jpeg",
+                use_container_width=True
+            )
+            st.markdown("</div>", unsafe_allow_html=True)
         except Exception as e:
-            st.error(f"Processing failed: {e}")
+            st.error(f"Processing error: {e}")
     else:
-        st.info(
-            "No image stored. Capture with the camera or upload an image in the left panel.")
-
-# Footer tips
-st.markdown("---")
-st.markdown("""
-**Tips**
-- Take a photo under even diffuse lighting for best results.
-- Use `Canny low/high` to control sensitivity. Lower = more edges (more false positives).
-- Increase `min area` to ignore speckle/noise.
-- `Aspect ratio` is useful to identify long thin cracks.
-""")
+        st.markdown("""
+        <div style="text-align:center;padding:4rem 2rem;">
+            <div st
