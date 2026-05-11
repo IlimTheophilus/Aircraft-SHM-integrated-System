@@ -16,20 +16,8 @@ st.markdown("""
 
 .stApp { background: #020c1b; color: #e2e8f0; }
 .block-container { padding: 0 !important; max-width: 100% !important; }
-/* Keep sidebar functional */
-[data-testid="stSidebar"] {
-    min-width: 250px;
-}
 
-/* Keep sidebar functional */
-[data-testid="stSidebar"] {
-    min-width: 250px;
-}
-
-/* Optional: clean look without breaking toggle */
-[data-testid="stSidebarNav"] ul {
-    display: block;
-} {
+section[data-testid="stSidebar"] {
     background: #0a1628 !important;
     border-right: 1px solid #0ea5e920;
 }
@@ -280,7 +268,10 @@ section[data-testid="stSidebar"] * { color: #94a3b8 !important; }
     font-size: 0.78rem; color: #475569; margin-top: 0.3rem;
 }
 
-#MainMenu, footer, header { visibility: hidden; }
+/* Hide streamlit chrome but KEEP sidebar toggle button visible */
+#MainMenu, footer { visibility: hidden; }
+header { visibility: hidden; }
+[data-testid="collapsedControl"] { visibility: visible !important; display: flex !important; }
 .stDeployButton { display: none; }
 </style>
 """, unsafe_allow_html=True)
