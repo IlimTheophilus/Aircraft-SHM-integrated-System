@@ -64,6 +64,8 @@ section[data-testid="stSidebar"] { background: #0a1628 !important; border-right:
 .stDownloadButton > button { background: rgba(16,185,129,0.15) !important; color: #34d399 !important; border: 1px solid rgba(16,185,129,0.3) !important; border-radius: 8px !important; }
 label { color: #94a3b8 !important; font-family: Inter, sans-serif !important; font-size: 0.8rem !important; }
 .page-footer { text-align: center; padding: 1.5rem; margin-top: 1rem; font-family: Inter, sans-serif; font-size: 0.72rem; color: #334155; border-top: 1px solid #0ea5e910; letter-spacing: 1px; }
+
+/* Hide streamlit chrome but KEEP sidebar toggle button visible */
 #MainMenu, footer, header { visibility: hidden; }
 </style>
 """, unsafe_allow_html=True)
