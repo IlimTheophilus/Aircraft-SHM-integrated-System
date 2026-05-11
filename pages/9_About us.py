@@ -15,7 +15,7 @@ st.markdown("""
 * { box-sizing: border-box; }
 
 .stApp { background: #020c1b; color: #e2e8f0; }
-.block-container { padding: 0 !important; max-width: 100% !important; }
+.block-container { padding: 0 !important; }
 
 section[data-testid="stSidebar"] {
     background: #0a1628 !important;
