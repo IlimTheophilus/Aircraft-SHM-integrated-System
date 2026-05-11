@@ -16,7 +16,15 @@ st.markdown("""
 
 .stApp { background: #020c1b; color: #e2e8f0; }
 .block-container { padding: 0 !important; max-width: 100% !important; }
-section[data-testid="stSidebar"] {
+/* Keep sidebar functional */
+[data-testid="stSidebar"] {
+    min-width: 250px;
+}
+
+/* Optional: clean look without breaking toggle */
+[data-testid="stSidebarNav"] ul {
+    display: block;
+} {
     background: #0a1628 !important;
     border-right: 1px solid #0ea5e920;
 }
