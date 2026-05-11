@@ -273,7 +273,9 @@ button[kind="secondary"] {
 }
 
 /* Hide streamlit chrome but KEEP sidebar toggle button visible */
-#MainMenu, footer, header { visibility: hidden; }
+#MainMenu, footer { visibility: hidden; }
+header { visibility: hidden; }
+[data-testid="collapsedControl"] { visibility: visible !important; display: flex !important; }
 .stDeployButton { display: none; }
 </style>
 """, unsafe_allow_html=True)
