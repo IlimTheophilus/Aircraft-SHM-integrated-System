@@ -1,17 +1,19 @@
-
 import streamlit as st
 from PIL import Image
 import os
+
 st.set_page_config(
     page_title="ASHMIS — Aircraft Structural Health Monitoring",
     layout="wide",
     page_icon="✈️",
     initial_sidebar_state="expanded"
 )
+
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
 * { box-sizing: border-box; }
+
 /* ── Global ── */
 .stApp { background: #020c1b; color: #e2e8f0; }
 .block-container { padding: 0 !important; max-width: 100% !important; }
@@ -22,6 +24,7 @@ section[data-testid="stSidebar"] {
 section[data-testid="stSidebar"] * { color: #94a3b8 !important; }
 section[data-testid="stSidebar"] .stSelectbox label,
 section[data-testid="stSidebar"] p { color: #94a3b8 !important; }
+
 /* ── Hero ── */
 .hero-wrapper {
     position: relative;
@@ -126,6 +129,7 @@ section[data-testid="stSidebar"] p { color: #94a3b8 !important; }
     width: 6px; height: 6px; border-radius: 50%;
     background: #0ea5e9; display: inline-block;
 }
+
 /* ── Stats Bar ── */
 .stats-bar {
     background: #0a1628;
@@ -146,6 +150,7 @@ section[data-testid="stSidebar"] p { color: #94a3b8 !important; }
     letter-spacing: 2px; text-transform: uppercase;
     margin-top: 0.2rem;
 }
+
 /* ── Section Wrapper ── */
 .section-wrapper { padding: 4rem; }
 .section-wrapper.dark { background: #020c1b; }
@@ -169,6 +174,7 @@ section[data-testid="stSidebar"] p { color: #94a3b8 !important; }
     max-width: 600px; line-height: 1.8;
     margin-bottom: 3rem;
 }
+
 /* ── Feature Cards ── */
 .features-grid {
     display: grid;
@@ -187,9 +193,7 @@ section[data-testid="stSidebar"] p { color: #94a3b8 !important; }
     top: 0; left: 0; right: 0; height: 2px;
     background: linear-gradient(90deg, transparent, #0ea5e9, transparent);
 }
-.feature-icon {
-    font-size: 2.2rem; margin-bottom: 1rem;
-}
+.feature-icon { font-size: 2.2rem; margin-bottom: 1rem; }
 .feature-title {
     font-family: 'Inter', sans-serif;
     font-size: 1rem; font-weight: 700;
@@ -208,6 +212,7 @@ section[data-testid="stSidebar"] p { color: #94a3b8 !important; }
     font-family: 'Inter', sans-serif;
     letter-spacing: 1px; text-transform: uppercase;
 }
+
 /* ── How It Works ── */
 .how-steps {
     display: grid;
@@ -243,6 +248,7 @@ section[data-testid="stSidebar"] p { color: #94a3b8 !important; }
     font-family: 'Inter', sans-serif;
     font-size: 0.78rem; color: #64748b; line-height: 1.6;
 }
+
 /* ── System Status ── */
 .status-panel {
     background: #0a1628;
@@ -277,6 +283,7 @@ section[data-testid="stSidebar"] p { color: #94a3b8 !important; }
 .status-ok   { color: #10b981; font-weight: 600; font-size: 0.75rem; letter-spacing: 1px; }
 .status-warn { color: #f59e0b; font-weight: 600; font-size: 0.75rem; letter-spacing: 1px; }
 .status-pend { color: #f59e0b; font-weight: 600; font-size: 0.75rem; letter-spacing: 1px; }
+
 /* ── Tech Stack ── */
 .tech-grid {
     display: flex; flex-wrap: wrap;
@@ -291,6 +298,7 @@ section[data-testid="stSidebar"] p { color: #94a3b8 !important; }
     font-weight: 600;
 }
 .tech-badge span { color: #38bdf8; margin-right: 0.4rem; }
+
 /* ── Footer ── */
 .footer {
     background: #020c1b;
@@ -307,15 +315,14 @@ section[data-testid="stSidebar"] p { color: #94a3b8 !important; }
     font-family: 'Inter', sans-serif;
     font-size: 0.78rem; color: #475569; margin-top: 0.3rem;
 }
-.footer-links {
-    display: flex; gap: 2rem; flex-wrap: wrap;
-}
+.footer-links { display: flex; gap: 2rem; flex-wrap: wrap; }
 .footer-link {
     font-family: 'Inter', sans-serif;
     font-size: 0.8rem; color: #64748b;
     text-decoration: none; letter-spacing: 1px;
     text-transform: uppercase;
 }
+
 /* ── Compliance Banner ── */
 .compliance-bar {
     background: rgba(14,165,233,0.05);
@@ -332,6 +339,7 @@ section[data-testid="stSidebar"] p { color: #94a3b8 !important; }
     font-weight: 600;
 }
 .compliance-dot { color: #0ea5e9; font-size: 0.5rem; }
+
 /* ── Info Cards ── */
 .info-card {
     background: #0a1628;
@@ -348,18 +356,10 @@ section[data-testid="stSidebar"] p { color: #94a3b8 !important; }
     font-family: 'Inter', sans-serif;
     font-size: 0.9rem; color: #e2e8f0; line-height: 1.7;
 }
-/* Hide streamlit chrome */
+
+/* Hide streamlit chrome but KEEP sidebar toggle button visible */
 #MainMenu, footer, header { visibility: hidden; }
 .stDeployButton { display: none; }
-
-
-/* FIX: hide sidebar nav WITHOUT breaking toggle button */
-[data-testid="stSidebarNav"] {
-    visibility: hidden;
-    height: 0;
-    overflow: hidden;
-}
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -391,6 +391,7 @@ st.markdown("""
     </div>
 </div>
 """, unsafe_allow_html=True)
+
 # ── STATS BAR ─────────────────────────────────────────────────────────────────
 st.markdown("""
 <div class="stats-bar">
@@ -420,9 +421,11 @@ st.markdown("""
     </div>
 </div>
 """, unsafe_allow_html=True)
+
 # ── ABOUT SECTION ─────────────────────────────────────────────────────────────
 st.markdown('<div class="section-wrapper mid">', unsafe_allow_html=True)
 col_left, col_right = st.columns([3, 2], gap="large")
+
 with col_left:
     st.markdown("""
     <div class="section-badge">// ABOUT THE SYSTEM</div>
@@ -433,6 +436,7 @@ with col_left:
         structural defects in aircraft components — wings, fuselage, tail sections, and more.
     </div>
     """, unsafe_allow_html=True)
+
     st.markdown("""
     <div class="info-card" style="margin-bottom:1rem;">
         <div class="info-card-title">▸ Mission Statement</div>
@@ -450,6 +454,7 @@ with col_left:
         </div>
     </div>
     """, unsafe_allow_html=True)
+
     st.markdown("""
     <div class="compliance-bar">
         <div class="compliance-item"><span class="compliance-dot">●</span> NCAA Nig.CARs</div>
@@ -460,6 +465,7 @@ with col_left:
         <div class="compliance-item"><span class="compliance-dot">●</span> MIL-STD-1629</div>
     </div>
     """, unsafe_allow_html=True)
+
 with col_right:
     try:
         img = Image.open("images/ASHMIS img.png")
@@ -473,7 +479,9 @@ with col_right:
             letter-spacing:2px;margin-top:1rem;">ASHMIS</div>
         </div>
         """, unsafe_allow_html=True)
+
 st.markdown('</div>', unsafe_allow_html=True)
+
 # ── FEATURES ─────────────────────────────────────────────────────────────────
 st.markdown('<div class="section-wrapper dark">', unsafe_allow_html=True)
 st.markdown("""
@@ -547,4 +555,3 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
-# ── HOW IT WORKS ──────────────────────────────────────────────────────────────
