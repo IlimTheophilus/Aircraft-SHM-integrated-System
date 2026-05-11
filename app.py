@@ -351,6 +351,21 @@ section[data-testid="stSidebar"] p { color: #94a3b8 !important; }
 /* Hide streamlit chrome */
 #MainMenu, footer, header { visibility: hidden; }
 .stDeployButton { display: none; }
+
+
+
+
+/* FIX: hide sidebar nav WITHOUT breaking toggle button */
+[data-testid="stSidebarNav"] {
+    visibility: hidden;
+    height: 0;
+    overflow: hidden;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+
 </style>
 """, unsafe_allow_html=True)
 # ── HERO ─────────────────────────────────────────────────────────────────────
