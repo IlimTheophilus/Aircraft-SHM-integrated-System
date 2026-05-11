@@ -20,7 +20,15 @@ section[data-testid="stSidebar"] {
     background: #0a1628 !important;
     border-right: 1px solid #0ea5e920;
 }
-section[data-testid="stSidebar"] * { color: #94a3b8 !important; }
+/* Keep sidebar functional */
+[data-testid="stSidebar"] {
+    min-width: 250px;
+}
+
+/* Optional: clean look without breaking toggle */
+[data-testid="stSidebarNav"] ul {
+    display: block;
+} * { color: #94a3b8 !important; }
 
 /* ── Hero ── */
 .hero-wrapper {
