@@ -21,6 +21,11 @@ st.markdown("""
     min-width: 250px;
 }
 
+/* Keep sidebar functional */
+[data-testid="stSidebar"] {
+    min-width: 250px;
+}
+
 /* Optional: clean look without breaking toggle */
 [data-testid="stSidebarNav"] ul {
     display: block;
