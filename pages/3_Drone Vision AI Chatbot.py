@@ -20,15 +20,7 @@ section[data-testid="stSidebar"] {
     background: #0a1628 !important;
     border-right: 1px solid #0ea5e920;
 }
-/* Keep sidebar functional */
-[data-testid="stSidebar"] {
-    min-width: 250px;
-}
-
-/* Optional: clean look without breaking toggle */
-[data-testid="stSidebarNav"] ul {
-    display: block;
-} * { color: #94a3b8 !important; }
+section[data-testid="stSidebar"] * { color: #94a3b8 !important; }
 
 /* ── Hero ── */
 .hero-wrapper {
@@ -194,88 +186,11 @@ section[data-testid="stSidebar"] {
     font-size: 0.82rem; color: #94a3b8; line-height: 1.6;
 }
 
+/* Hide streamlit chrome but KEEP sidebar toggle button visible */
 #MainMenu, footer, header { visibility: hidden; }
 .stDeployButton { display: none; }
 </style>
 """, unsafe_allow_html=True)
-
-# ── HERO ─────────────────────────────────────────────────────────────────────
-st.markdown("""
-<div class="hero-wrapper">
-    <div class="hero-grid"></div>
-    <div class="hero-glow"></div>
-    <div class="hero-scan-line"></div>
-    <div class="hero-badge">⬡ &nbsp; AI Aerospace Intelligence Engine &nbsp; ⬡</div>
-    <div class="hero-title">
-        DRONE VISION-AI<br>
-        <span>Aerospace Chatbot</span>
-    </div>
-    <div class="hero-subtitle">ASHMIS — Intelligent Flight Operations Assistant</div>
-    <div class="hero-desc">
-        A Llama 3.3 70B powered aerospace intelligence assistant with 30+ years equivalent
-        expertise across SHM, avionics, rocketry, military systems, and Nigerian aviation
-        regulations. Ask anything aerospace — from fatigue cracks to orbital mechanics.
-    </div>
-    <div class="hero-tag">
-        <span class="hero-tag-item"><span class="hero-tag-dot"></span> Llama 3.3 70B</span>
-        <span class="hero-tag-item"><span class="hero-tag-dot"></span> NCAA / EASA / ICAO</span>
-        <span class="hero-tag-item"><span class="hero-tag-dot"></span> SHM Specialist</span>
-        <span class="hero-tag-item"><span class="hero-tag-dot"></span> NDT / MRO Expert</span>
-        <span class="hero-tag-item"><span class="hero-tag-dot"></span> AIS Technologies</span>
-    </div>
-</div>
-""", unsafe_allow_html=True)
-
-# ── TOPIC CHIPS ───────────────────────────────────────────────────────────────
-st.markdown("""
-<div class="chip-row">
-    <span class="chip">🔩 Structures & Fatigue</span>
-    <span class="chip">🌡️ NDT / NDE</span>
-    <span class="chip">✈️ Aerodynamics</span>
-    <span class="chip">⚙️ Propulsion</span>
-    <span class="chip">📡 Avionics</span>
-    <span class="chip">🛸 Rocketry</span>
-    <span class="chip">🛡️ Military Systems</span>
-    <span class="chip">🌍 Nigerian Aviation</span>
-</div>
-""", unsafe_allow_html=True)
-
-# ── SIDEBAR ───────────────────────────────────────────────────────────────────
-with st.sidebar:
-    st.markdown("""
-    <div style="padding:1rem 0 0.5rem; font-family:'Orbitron',monospace;
-    font-size:0.65rem; color:#38bdf8; letter-spacing:3px; text-transform:uppercase;">
-        // AI System Info
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("""
-    <div class="ai-card">
-        <div class="ai-card-title">▸ Model</div>
-        <div class="ai-card-value">Llama 3.3 70B Versatile<br>via Groq Inference</div>
-    </div>
-    <div class="ai-card">
-        <div class="ai-card-title">▸ Designed By</div>
-        <div class="ai-card-value">Ilim A. Theophilus<br>Aerospace Engineering, AFIT Kaduna<br>Founder, AIS Technologies</div>
-    </div>
-    <div class="ai-card">
-        <div class="ai-card-title">▸ Expertise Coverage</div>
-        <div class="ai-card-value">
-            Structures · Materials · SHM<br>
-            Aerodynamics · Propulsion<br>
-            Avionics · Navigation<br>
-            Rocketry · Astronautics<br>
-            Military Aviation · UAV<br>
-            NCAA · EASA · FAA · ICAO
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown('<div style="height:1rem;"></div>', unsafe_allow_html=True)
-
-    if st.button("🗑 Clear Chat History", use_container_width=True):
-        st.session_state.chat_history = [{"role": "system", "content": SYSTEM_PROMPT}]
-        st.rerun()
 
 # ── SYSTEM PROMPT ─────────────────────────────────────────────────────────────
 SYSTEM_PROMPT = """
@@ -361,6 +276,84 @@ to add a human touch, and to feel alive to the users to kind of alleviate work s
 Only politely decline questions that are completely unrelated to aerospace, aviation,
 rocketry, space, or related engineering disciplines. If no defects are visible, say so clearly and explain what a healthy surface looks like.
 """
+
+# ── HERO ─────────────────────────────────────────────────────────────────────
+st.markdown("""
+<div class="hero-wrapper">
+    <div class="hero-grid"></div>
+    <div class="hero-glow"></div>
+    <div class="hero-scan-line"></div>
+    <div class="hero-badge">⬡ &nbsp; AI Aerospace Intelligence Engine &nbsp; ⬡</div>
+    <div class="hero-title">
+        DRONE VISION-AI<br>
+        <span>Aerospace Chatbot</span>
+    </div>
+    <div class="hero-subtitle">ASHMIS — Intelligent Flight Operations Assistant</div>
+    <div class="hero-desc">
+        A Llama 3.3 70B powered aerospace intelligence assistant with 30+ years equivalent
+        expertise across SHM, avionics, rocketry, military systems, and Nigerian aviation
+        regulations. Ask anything aerospace — from fatigue cracks to orbital mechanics.
+    </div>
+    <div class="hero-tag">
+        <span class="hero-tag-item"><span class="hero-tag-dot"></span> Llama 3.3 70B</span>
+        <span class="hero-tag-item"><span class="hero-tag-dot"></span> NCAA / EASA / ICAO</span>
+        <span class="hero-tag-item"><span class="hero-tag-dot"></span> SHM Specialist</span>
+        <span class="hero-tag-item"><span class="hero-tag-dot"></span> NDT / MRO Expert</span>
+        <span class="hero-tag-item"><span class="hero-tag-dot"></span> AIS Technologies</span>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+# ── TOPIC CHIPS ───────────────────────────────────────────────────────────────
+st.markdown("""
+<div class="chip-row">
+    <span class="chip">🔩 Structures & Fatigue</span>
+    <span class="chip">🌡️ NDT / NDE</span>
+    <span class="chip">✈️ Aerodynamics</span>
+    <span class="chip">⚙️ Propulsion</span>
+    <span class="chip">📡 Avionics</span>
+    <span class="chip">🛸 Rocketry</span>
+    <span class="chip">🛡️ Military Systems</span>
+    <span class="chip">🌍 Nigerian Aviation</span>
+</div>
+""", unsafe_allow_html=True)
+
+# ── SIDEBAR ───────────────────────────────────────────────────────────────────
+with st.sidebar:
+    st.markdown("""
+    <div style="padding:1rem 0 0.5rem; font-family:'Orbitron',monospace;
+    font-size:0.65rem; color:#38bdf8; letter-spacing:3px; text-transform:uppercase;">
+        // AI System Info
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="ai-card">
+        <div class="ai-card-title">▸ Model</div>
+        <div class="ai-card-value">Llama 3.3 70B Versatile<br>via Groq Inference</div>
+    </div>
+    <div class="ai-card">
+        <div class="ai-card-title">▸ Designed By</div>
+        <div class="ai-card-value">Ilim A. Theophilus<br>Aerospace Engineering, AFIT Kaduna<br>Founder, AIS Technologies</div>
+    </div>
+    <div class="ai-card">
+        <div class="ai-card-title">▸ Expertise Coverage</div>
+        <div class="ai-card-value">
+            Structures · Materials · SHM<br>
+            Aerodynamics · Propulsion<br>
+            Avionics · Navigation<br>
+            Rocketry · Astronautics<br>
+            Military Aviation · UAV<br>
+            NCAA · EASA · FAA · ICAO
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown('<div style="height:1rem;"></div>', unsafe_allow_html=True)
+
+    if st.button("🗑 Clear Chat History", use_container_width=True):
+        st.session_state.chat_history = [{"role": "system", "content": SYSTEM_PROMPT}]
+        st.rerun()
 
 # ── GROQ CLIENT ───────────────────────────────────────────────────────────────
 client = Groq(api_key=st.secrets["GROQ_API_KEY"])
