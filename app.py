@@ -359,8 +359,6 @@ section[data-testid="stSidebar"] p { color: #94a3b8 !important; }
 
 /* ═══════════════════════════════════════════════════
    SIDEBAR — PERMANENTLY VISIBLE
-   Hide the collapse button so the sidebar stays open
-   at all times. No toggle = no vanishing problem.
    ═══════════════════════════════════════════════════ */
 #MainMenu { visibility: hidden; }
 footer { visibility: hidden; }
@@ -399,7 +397,7 @@ st.markdown("""
     <div class="hero-subtitle">ASHMIS — Next-Generation NDT Intelligence</div>
     <div class="hero-desc">
         A low-cost, AI-driven platform that fuses thermal and visual imaging with machine learning
-        to detect cracks, corrosion, delamination and structural anomalies in aircraft components —
+        to detect cracks, corrosion, delamination and structural anomalies in aircraft components
         enabling predictive maintenance and progressive degradation tracking in real time.
     </div>
     <div class="hero-tag">
@@ -524,10 +522,10 @@ st.markdown("""
     </div>
     <div class="feature-card">
         <div class="feature-icon">🌡️</div>
-        <div class="feature-title">Thermal & Visual Fusion</div>
+        <div class="feature-title">Thermal & Visual Imaging Fusion</div>
         <div class="feature-desc">
             Dual-modality imaging combining infrared thermal camera data with
-            visual RGB imaging for comprehensive structural assessment — detecting
+            visual RGB imaging for comprehensive structural assessment, detecting
             subsurface anomalies invisible to standard cameras.
         </div>
         <span class="feature-tag">Thermal Imaging</span>
@@ -548,7 +546,7 @@ st.markdown("""
         <div class="feature-desc">
             Auto-generate downloadable PDF maintenance inspection reports
             compliant with NCAA Nig.CARs, EASA Part-145, and NAF Technical
-            Orders — with full signature blocks and certification.
+            Orders, with full signature blocks and certification.
         </div>
         <span class="feature-tag">NCAA • EASA • NAF</span>
     </div>
@@ -557,7 +555,7 @@ st.markdown("""
         <div class="feature-title">Maintenance Log & Tracking</div>
         <div class="feature-desc">
             Aviation-standard maintenance event logging per aircraft registration,
-            flight hours, and inspection type — enabling progressive degradation
+            flight hours, and inspection type, enabling progressive degradation
             tracking and airworthiness record keeping.
         </div>
         <span class="feature-tag">MRO Standard</span>
