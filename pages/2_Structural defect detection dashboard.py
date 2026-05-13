@@ -4,7 +4,12 @@ import numpy as np
 import io
 from skimage import exposure, filters, feature, morphology, measure, color
 
-st.set_page_config(page_title="ASHMIS SDD Dashboard", layout="wide", page_icon="🔍")
+st.set_page_config(
+    page_title="ASHMIS SDD Dashboard",
+    layout="wide",
+    page_icon="🔍",
+    initial_sidebar_state="expanded"
+)
 
 st.markdown("""
 <style>
@@ -66,21 +71,24 @@ label { color: #94a3b8 !important; font-family: Inter, sans-serif !important; fo
 .page-footer { text-align: center; padding: 1.5rem; margin-top: 1rem; font-family: Inter, sans-serif; font-size: 0.72rem; color: #334155; border-top: 1px solid #0ea5e910; letter-spacing: 1px; }
 
 /* ═══════════════════════════════════════════════════
-   SIDEBAR TOGGLE FIX
+   SIDEBAR — PERMANENTLY VISIBLE
    ═══════════════════════════════════════════════════ */
 #MainMenu { visibility: hidden; }
 footer { visibility: hidden; }
-header[data-testid="stHeader"] {
-    background: transparent !important;
-    pointer-events: none;
-}
-[data-testid="collapsedControl"] {
-    pointer-events: all !important;
-    visibility: visible !important;
-    display: flex !important;
-}
+header[data-testid="stHeader"] { background: transparent !important; }
 [data-testid="stToolbar"] { display: none !important; }
 .stDeployButton { display: none !important; }
+
+[data-testid="collapsedControl"]            { display: none !important; }
+[data-testid="stSidebarCollapseButton"]     { display: none !important; }
+section[data-testid="stSidebar"]
+  > div:first-child button                  { display: none !important; }
+
+section[data-testid="stSidebar"] {
+    transform: translateX(0) !important;
+    min-width: 21rem !important;
+    width: 21rem !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
