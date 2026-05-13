@@ -358,28 +358,28 @@ section[data-testid="stSidebar"] p { color: #94a3b8 !important; }
 }
 
 /* ═══════════════════════════════════════════════════
-   SIDEBAR TOGGLE FIX
-   - We do NOT hide the entire header element.
-   - We hide only the inner toolbar / deploy button.
-   - The collapsedControl (sidebar arrow) lives inside
-     the header and must remain fully visible.
+   SIDEBAR — PERMANENTLY VISIBLE
+   Hide the collapse button so the sidebar stays open
+   at all times. No toggle = no vanishing problem.
    ═══════════════════════════════════════════════════ */
 #MainMenu { visibility: hidden; }
 footer { visibility: hidden; }
-/* Make header background transparent instead of hiding it */
-header[data-testid="stHeader"] {
-    background: transparent !important;
-    pointer-events: none;
-}
-/* Re-enable pointer events on the toggle button specifically */
-[data-testid="collapsedControl"] {
-    pointer-events: all !important;
-    visibility: visible !important;
-    display: flex !important;
-}
-/* Hide only the toolbar strip (deploy, share, etc.) */
+header[data-testid="stHeader"] { background: transparent !important; }
 [data-testid="stToolbar"] { display: none !important; }
 .stDeployButton { display: none !important; }
+
+/* Hide every variant of the sidebar collapse/expand button */
+[data-testid="collapsedControl"]            { display: none !important; }
+[data-testid="stSidebarCollapseButton"]     { display: none !important; }
+section[data-testid="stSidebar"]
+  > div:first-child button                  { display: none !important; }
+
+/* Keep sidebar locked open */
+section[data-testid="stSidebar"] {
+    transform: translateX(0) !important;
+    min-width: 21rem !important;
+    width: 21rem !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
