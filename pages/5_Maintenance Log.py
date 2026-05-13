@@ -280,7 +280,7 @@ st.markdown("""
     <div class="hero-desc">
         Record, track, and manage aircraft maintenance events following standard aviation
         log practices. Capture defects, corrective actions, technician certification,
-        and schedule next inspection — per NCAA, EASA, and ICAO standards.
+        and schedule next inspection per NCAA, EASA, and ICAO standards.
     </div>
     <div class="hero-tag">
         <span class="hero-tag-item"><span class="hero-tag-dot"></span> NCAA Nig.CARs</span>
