@@ -301,7 +301,7 @@ st.markdown("""
     <div class="hero-desc">
         A Llama 3.3 70B powered aerospace intelligence assistant with 30+ years equivalent
         expertise across SHM, avionics, rocketry, military systems, and Nigerian aviation
-        regulations. Ask anything aerospace — from fatigue cracks to orbital mechanics.
+        regulations. Ask anything aerospace from fatigue cracks to orbital mechanics.
     </div>
     <div class="hero-tag">
         <span class="hero-tag-item"><span class="hero-tag-dot"></span> Llama 3.3 70B</span>
