@@ -237,11 +237,22 @@ section[data-testid="stSidebar"] * { color: #94a3b8 !important; }
     font-size: 0.8rem; color: #94a3b8; line-height: 1.6;
 }
 
-/* Hide streamlit chrome but KEEP sidebar toggle button visible */
-#MainMenu, footer { visibility: hidden; }
-header { visibility: hidden; }
-[data-testid="collapsedControl"] { visibility: visible !important; display: flex !important; }
-.stDeployButton { display: none; }
+/* ═══════════════════════════════════════════════════
+   SIDEBAR TOGGLE FIX
+   ═══════════════════════════════════════════════════ */
+#MainMenu { visibility: hidden; }
+footer { visibility: hidden; }
+header[data-testid="stHeader"] {
+    background: transparent !important;
+    pointer-events: none;
+}
+[data-testid="collapsedControl"] {
+    pointer-events: all !important;
+    visibility: visible !important;
+    display: flex !important;
+}
+[data-testid="stToolbar"] { display: none !important; }
+.stDeployButton { display: none !important; }
 </style>
 """, unsafe_allow_html=True)
 
