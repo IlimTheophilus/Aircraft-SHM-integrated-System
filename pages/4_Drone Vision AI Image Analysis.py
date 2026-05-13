@@ -11,7 +11,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ── SHARED CSS ────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
@@ -79,8 +78,7 @@ section[data-testid="stSidebar"] * { color: #94a3b8 !important; }
     font-family: 'Orbitron', monospace;
     font-size: clamp(0.75rem, 1.5vw, 0.95rem);
     color: #38bdf8; font-weight: 400;
-    letter-spacing: 3px; text-transform: uppercase;
-    margin-bottom: 1.2rem;
+    letter-spacing: 3px; text-transform: uppercase; margin-bottom: 1.2rem;
 }
 .hero-desc {
     font-family: 'Inter', sans-serif;
@@ -108,8 +106,7 @@ section[data-testid="stSidebar"] * { color: #94a3b8 !important; }
 .section-badge {
     font-family: 'Orbitron', monospace;
     font-size: 0.65rem; color: #38bdf8;
-    letter-spacing: 3px; text-transform: uppercase;
-    margin-bottom: 0.8rem;
+    letter-spacing: 3px; text-transform: uppercase; margin-bottom: 0.8rem;
 }
 .section-title {
     font-family: 'Orbitron', monospace;
@@ -138,8 +135,7 @@ section[data-testid="stSidebar"] * { color: #94a3b8 !important; }
 .panel-header {
     font-family: 'Orbitron', monospace;
     font-size: 0.65rem; color: #38bdf8;
-    letter-spacing: 3px; text-transform: uppercase;
-    margin-bottom: 1.5rem;
+    letter-spacing: 3px; text-transform: uppercase; margin-bottom: 1.5rem;
     display: flex; align-items: center; gap: 0.6rem;
 }
 .pulse-dot {
@@ -167,8 +163,7 @@ section[data-testid="stSidebar"] * { color: #94a3b8 !important; }
 .report-header {
     font-family: 'Orbitron', monospace;
     font-size: 0.65rem; color: #10b981;
-    letter-spacing: 3px; text-transform: uppercase;
-    margin-bottom: 1.5rem;
+    letter-spacing: 3px; text-transform: uppercase; margin-bottom: 1.5rem;
     display: flex; align-items: center; gap: 0.6rem;
 }
 .report-content {
@@ -177,48 +172,33 @@ section[data-testid="stSidebar"] * { color: #94a3b8 !important; }
 }
 
 /* ── Status Items ── */
-.status-bar {
-    display: flex; gap: 1rem; flex-wrap: wrap;
-    margin-bottom: 1.5rem;
-}
+.status-bar { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
 .status-chip {
     background: rgba(14,165,233,0.08);
     border: 1px solid rgba(14,165,233,0.2);
     color: #38bdf8; padding: 0.3rem 0.8rem;
     border-radius: 6px; font-size: 0.72rem;
     font-family: 'Inter', sans-serif;
-    font-weight: 600; letter-spacing: 1px;
-    text-transform: uppercase;
+    font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
 }
 
 /* ── Streamlit overrides ── */
 [data-testid="stFileUploader"] {
-    background: #050f1f !important;
-    border: 1px dashed #0ea5e930 !important;
-    border-radius: 8px !important;
+    background: #050f1f !important; border: 1px dashed #0ea5e930 !important; border-radius: 8px !important;
 }
 [data-testid="stCameraInput"] {
-    background: #050f1f !important;
-    border: 1px dashed #0ea5e930 !important;
-    border-radius: 8px !important;
+    background: #050f1f !important; border: 1px dashed #0ea5e930 !important; border-radius: 8px !important;
 }
 .stButton > button {
     background: linear-gradient(135deg, #0369a1, #0ea5e9) !important;
-    color: white !important;
-    border: none !important;
-    border-radius: 8px !important;
-    font-family: 'Inter', sans-serif !important;
-    font-weight: 700 !important;
-    letter-spacing: 1px !important;
-    text-transform: uppercase !important;
-    font-size: 0.82rem !important;
-    padding: 0.7rem 1.5rem !important;
-    box-shadow: 0 0 20px rgba(14,165,233,0.25) !important;
-    transition: all 0.2s !important;
+    color: white !important; border: none !important; border-radius: 8px !important;
+    font-family: 'Inter', sans-serif !important; font-weight: 700 !important;
+    letter-spacing: 1px !important; text-transform: uppercase !important;
+    font-size: 0.82rem !important; padding: 0.7rem 1.5rem !important;
+    box-shadow: 0 0 20px rgba(14,165,233,0.25) !important; transition: all 0.2s !important;
 }
 .stButton > button:hover {
-    box-shadow: 0 0 35px rgba(14,165,233,0.45) !important;
-    transform: translateY(-1px) !important;
+    box-shadow: 0 0 35px rgba(14,165,233,0.45) !important; transform: translateY(-1px) !important;
 }
 
 /* ── Info sidebar card ── */
@@ -238,21 +218,24 @@ section[data-testid="stSidebar"] * { color: #94a3b8 !important; }
 }
 
 /* ═══════════════════════════════════════════════════
-   SIDEBAR TOGGLE FIX
+   SIDEBAR — PERMANENTLY VISIBLE
    ═══════════════════════════════════════════════════ */
 #MainMenu { visibility: hidden; }
 footer { visibility: hidden; }
-header[data-testid="stHeader"] {
-    background: transparent !important;
-    pointer-events: none;
-}
-[data-testid="collapsedControl"] {
-    pointer-events: all !important;
-    visibility: visible !important;
-    display: flex !important;
-}
+header[data-testid="stHeader"] { background: transparent !important; }
 [data-testid="stToolbar"] { display: none !important; }
 .stDeployButton { display: none !important; }
+
+[data-testid="collapsedControl"]            { display: none !important; }
+[data-testid="stSidebarCollapseButton"]     { display: none !important; }
+section[data-testid="stSidebar"]
+  > div:first-child button                  { display: none !important; }
+
+section[data-testid="stSidebar"] {
+    transform: translateX(0) !important;
+    min-width: 21rem !important;
+    width: 21rem !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
