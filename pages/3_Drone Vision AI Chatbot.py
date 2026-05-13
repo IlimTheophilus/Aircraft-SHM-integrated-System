@@ -8,7 +8,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ── SHARED CSS ────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
@@ -99,15 +98,11 @@ section[data-testid="stSidebar"] * { color: #94a3b8 !important; }
 }
 
 /* ── Chat Container ── */
-.chat-wrapper {
-    padding: 2rem 4rem;
-    background: #020c1b;
-}
+.chat-wrapper { padding: 2rem 4rem; background: #020c1b; }
 .chat-panel {
     background: #0a1628;
     border: 1px solid #0ea5e920;
-    border-radius: 12px;
-    overflow: hidden;
+    border-radius: 12px; overflow: hidden;
 }
 .chat-panel-header {
     background: #050f1f;
@@ -141,45 +136,33 @@ section[data-testid="stSidebar"] * { color: #94a3b8 !important; }
     color: #38bdf8; padding: 0.3rem 0.9rem;
     border-radius: 50px; font-size: 0.72rem;
     font-family: 'Inter', sans-serif;
-    font-weight: 600; letter-spacing: 1px;
-    text-transform: uppercase;
+    font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
 }
 
 /* ── Streamlit chat override ── */
-[data-testid="stChatMessage"] {
-    background: transparent !important;
-    border: none !important;
-}
+[data-testid="stChatMessage"] { background: transparent !important; border: none !important; }
 [data-testid="stChatMessageContent"] {
     font-family: 'Inter', sans-serif !important;
-    font-size: 0.9rem !important;
-    color: #e2e8f0 !important;
-    line-height: 1.75 !important;
+    font-size: 0.9rem !important; color: #e2e8f0 !important; line-height: 1.75 !important;
 }
 [data-testid="stChatInput"] textarea {
-    background: #0a1628 !important;
-    border: 1px solid #0ea5e930 !important;
-    color: #e2e8f0 !important;
-    font-family: 'Inter', sans-serif !important;
-    border-radius: 8px !important;
+    background: #0a1628 !important; border: 1px solid #0ea5e930 !important;
+    color: #e2e8f0 !important; font-family: 'Inter', sans-serif !important; border-radius: 8px !important;
 }
 [data-testid="stChatInput"] textarea:focus {
-    border-color: #0ea5e9 !important;
-    box-shadow: 0 0 0 2px rgba(14,165,233,0.15) !important;
+    border-color: #0ea5e9 !important; box-shadow: 0 0 0 2px rgba(14,165,233,0.15) !important;
 }
 
 /* ── Sidebar AI card ── */
 .ai-card {
     background: rgba(14,165,233,0.06);
     border: 1px solid rgba(14,165,233,0.2);
-    border-radius: 10px; padding: 1.2rem;
-    margin: 1rem;
+    border-radius: 10px; padding: 1.2rem; margin: 1rem;
 }
 .ai-card-title {
     font-family: 'Orbitron', monospace;
     font-size: 0.62rem; color: #38bdf8;
-    letter-spacing: 2px; text-transform: uppercase;
-    margin-bottom: 0.6rem;
+    letter-spacing: 2px; text-transform: uppercase; margin-bottom: 0.6rem;
 }
 .ai-card-value {
     font-family: 'Inter', sans-serif;
@@ -187,21 +170,24 @@ section[data-testid="stSidebar"] * { color: #94a3b8 !important; }
 }
 
 /* ═══════════════════════════════════════════════════
-   SIDEBAR TOGGLE FIX
+   SIDEBAR — PERMANENTLY VISIBLE
    ═══════════════════════════════════════════════════ */
 #MainMenu { visibility: hidden; }
 footer { visibility: hidden; }
-header[data-testid="stHeader"] {
-    background: transparent !important;
-    pointer-events: none;
-}
-[data-testid="collapsedControl"] {
-    pointer-events: all !important;
-    visibility: visible !important;
-    display: flex !important;
-}
+header[data-testid="stHeader"] { background: transparent !important; }
 [data-testid="stToolbar"] { display: none !important; }
 .stDeployButton { display: none !important; }
+
+[data-testid="collapsedControl"]            { display: none !important; }
+[data-testid="stSidebarCollapseButton"]     { display: none !important; }
+section[data-testid="stSidebar"]
+  > div:first-child button                  { display: none !important; }
+
+section[data-testid="stSidebar"] {
+    transform: translateX(0) !important;
+    min-width: 21rem !important;
+    width: 21rem !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -386,7 +372,6 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Render chat history
 for msg in st.session_state.chat_history:
     if msg["role"] != "system":
         with st.chat_message(msg["role"]):
