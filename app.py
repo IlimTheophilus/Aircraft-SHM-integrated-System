@@ -357,11 +357,29 @@ section[data-testid="stSidebar"] p { color: #94a3b8 !important; }
     font-size: 0.9rem; color: #e2e8f0; line-height: 1.7;
 }
 
-/* Hide streamlit chrome but KEEP sidebar toggle button visible */
-#MainMenu, footer { visibility: hidden; }
-header { visibility: hidden; }
-[data-testid="collapsedControl"] { visibility: visible !important; display: flex !important; }
-.stDeployButton { display: none; }
+/* ═══════════════════════════════════════════════════
+   SIDEBAR TOGGLE FIX
+   - We do NOT hide the entire header element.
+   - We hide only the inner toolbar / deploy button.
+   - The collapsedControl (sidebar arrow) lives inside
+     the header and must remain fully visible.
+   ═══════════════════════════════════════════════════ */
+#MainMenu { visibility: hidden; }
+footer { visibility: hidden; }
+/* Make header background transparent instead of hiding it */
+header[data-testid="stHeader"] {
+    background: transparent !important;
+    pointer-events: none;
+}
+/* Re-enable pointer events on the toggle button specifically */
+[data-testid="collapsedControl"] {
+    pointer-events: all !important;
+    visibility: visible !important;
+    display: flex !important;
+}
+/* Hide only the toolbar strip (deploy, share, etc.) */
+[data-testid="stToolbar"] { display: none !important; }
+.stDeployButton { display: none !important; }
 </style>
 """, unsafe_allow_html=True)
 
