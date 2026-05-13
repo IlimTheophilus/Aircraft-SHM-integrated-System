@@ -451,7 +451,7 @@ with col_left:
     <div class="section-desc">
         ASHMIS is an integrated, low-cost Airframe Structural Health Monitoring System that
         leverages computer vision, thermal imaging, and machine learning to automatically detect
-        structural defects in aircraft components — wings, fuselage, tail sections, and more.
+        structural defects in aircraft components; wings, fuselage, tail sections, and more.
     </div>
     """, unsafe_allow_html=True)
 
