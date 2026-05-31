@@ -298,7 +298,7 @@ st.markdown("""
     <div class="hero-subtitle">Building the Next Generation of Intelligence Systems</div>
     <div class="hero-desc">
         An Aerospace and Defense technology company dedicated to the design and development
-        of intelligent, mission-critical systems for aviation, space, and national defense —
+        of intelligent, mission-critical systems for aviation, space, and national defense
         integrating engineering, sensing, data intelligence, and autonomy across the full
         operational lifecycle.
     </div>
