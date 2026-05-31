@@ -250,7 +250,7 @@ st.markdown("""
         Vision AI<br>
         <span>Surface Inspector</span>
     </div>
-    <div class="hero-subtitle">ASHMIS — Multimodal Structural Analysis Module</div>
+    <div class="hero-subtitle">ASHMIS — AI Structural Analysis Module</div>
     <div class="hero-desc">
         Upload or capture an aircraft surface image and DRONE VISION-AI will perform an
         automated structural inspection detecting cracks, corrosion, delamination,
