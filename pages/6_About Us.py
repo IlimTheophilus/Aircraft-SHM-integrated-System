@@ -347,9 +347,10 @@ with col_left:
     <div class="section-badge">// ABOUT AIS TECHNOLOGIES</div>
     <div class="section-title">Who We <span>Are</span></div>
     <div class="section-desc">
-        AIS Technologies builds advanced aerospace systems that strengthen operational
-        effectiveness, technological independence, and strategic readiness — recognizing
-        aerospace technology as a strategic National asset.
+        AIS Technologies is a company that builds advanced aerospace systems that strengthen operational
+        effectiveness, technological independence, and strategic readiness recognizing
+        aerospace technology as a strategic National asset. It is the first Aerospace company in Nigeria with the CEO and Founder
+        being Ilim A.Theophilus, a final year aerospace enineering student at the Airforce Institute of Technology Kaduna State.
     </div>
     """, unsafe_allow_html=True)
 
@@ -411,7 +412,7 @@ with col_v:
         <div class="info-card-value">
             To become a globally respected aerospace and defense systems company delivering
             intelligent technologies that enhance airspace safety, mission effectiveness,
-            and national security — while enabling Nigeria as an emerging aerospace nation
+            and national security, while enabling Nigeria as an emerging aerospace nation
             to build and control its own critical capabilities.
         </div>
     </div>
@@ -453,7 +454,7 @@ st.markdown("""
 <div class="section-title">Aircraft Structural Health Monitoring<br>
 <span>& Integrated System (ASHMIS)</span></div>
 <div class="section-desc">
-    Our inaugural platform — transforming aircraft maintenance and inspection
+    Our inaugural platform transforming aircraft maintenance and inspection
     through thermal-visual imaging fusion and computer vision AI.
 </div>
 """, unsafe_allow_html=True)
@@ -511,7 +512,7 @@ st.markdown("""
 <div class="section-badge">// THE PROBLEM WE SOLVE</div>
 <div class="section-title">Why It <span>Matters</span></div>
 <div class="section-desc">
-    In many regions — especially across Africa — aircraft maintenance still relies heavily
+    In many regions especially across Africa aircraft maintenance still relies heavily
     on outdated methods. AIS Technologies is changing that reality.
 </div>
 """, unsafe_allow_html=True)
