@@ -568,7 +568,7 @@ st.markdown("""
 <div class="section-badge">// BEYOND MAINTENANCE</div>
 <div class="section-title">Long-Term <span>Roadmap</span></div>
 <div class="section-desc">
-    ASHMIS is our first platform — not our destination. AIS Technologies is building
+    ASHMIS is our first platform not our destination. AIS Technologies is building
     a systems-level aerospace and defense technology portfolio.
 </div>
 <div class="roadmap-grid">
@@ -611,6 +611,7 @@ st.markdown("""
     <div>
         <div class="footer-brand">AIS Technologies</div>
         <div class="footer-info">Aerospace Intelligent Systems · AFIT Kaduna · Built for Scale. Designed for Impact.</div>
+               <div class="footer-info"> Founded by Ilim A.Theophilus</div>
     </div>
     <div style="font-family:'Orbitron',monospace; font-size:0.65rem;
     color:#334155; letter-spacing:2px; text-transform:uppercase;">
