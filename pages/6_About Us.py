@@ -549,13 +549,22 @@ with col_sol:
         </div>
     </div>
     """, unsafe_allow_html=True)
-
 try:
+
     img = Image.open("images/global-air-travel-connectivity.jpg")
+
+    img = img.resize((img.width // 2, img.height // 2))
+
+
     st.markdown('<div class="img-frame" style="margin-top:2rem;">', unsafe_allow_html=True)
+
     st.image(img, use_container_width=True)
+
     st.markdown('</div>', unsafe_allow_html=True)
-except:
+
+
+except Exception:
+
     pass
 
 st.markdown('</div>', unsafe_allow_html=True)
