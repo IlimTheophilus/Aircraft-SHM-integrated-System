@@ -369,7 +369,7 @@ with col_left:
 
 with col_right:
     try:
-        img = Image.open("images/Aero Intel img.png")
+        img = Image.open("images/Startup company name.png")
         st.markdown('<div class="img-frame">', unsafe_allow_html=True)
         st.image(img, use_container_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
