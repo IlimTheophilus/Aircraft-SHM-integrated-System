@@ -2,7 +2,7 @@ import streamlit as st
 from PIL import Image
 
 st.set_page_config(
-    page_title="ASHMIS — AIS Technologies",
+    page_title="ASHMIS — VELTHORIS Technologies",
     layout="wide",
     page_icon="✈️",
     initial_sidebar_state="expanded"
@@ -291,11 +291,10 @@ st.markdown("""
     <div class="hero-scan-line"></div>
     <div class="hero-badge">⬡ &nbsp; Aerospace & Defense Technology Company &nbsp; ⬡</div>
     <div class="hero-title">
-        Aerospace Intelligent<br>
-        <span>Systems (AIS)</span><br>
+        <span> VELTHORIS </span><br>
         Technologies
     </div>
-    <div class="hero-subtitle">Building the Next Generation of Intelligence Systems</div>
+    <div class="hero-subtitle">BUILT FOR IMPACT</div>
     <div class="hero-desc">
         An Aerospace and Defense technology company dedicated to the design and development
         of intelligent, mission-critical systems for aviation, space, and national defense
@@ -344,10 +343,10 @@ st.markdown('<div class="section-wrapper mid">', unsafe_allow_html=True)
 col_left, col_right = st.columns([3, 2], gap="large")
 with col_left:
     st.markdown("""
-    <div class="section-badge">// ABOUT AIS TECHNOLOGIES</div>
+    <div class="section-badge">// ABOUT VELTHORIS TECHNOLOGIES</div>
     <div class="section-title">Who We <span>Are</span></div>
     <div class="section-desc">
-        AIS Technologies is a company that builds advanced aerospace systems that strengthen operational
+        VELTHORIS Technologies is a company that builds advanced aerospace systems that strengthen operational
         effectiveness, technological independence, and strategic readiness recognizing
         aerospace technology as a strategic National asset. It is the first Aerospace company in Nigeria with the CEO and Founder
         being Ilim A.Theophilus, a final year aerospace enineering student at the Airforce Institute of Technology Kaduna State.
@@ -513,7 +512,7 @@ st.markdown("""
 <div class="section-title">Why It <span>Matters</span></div>
 <div class="section-desc">
     In many regions especially across Africa aircraft maintenance still relies heavily
-    on outdated methods. AIS Technologies is changing that reality.
+    on outdated methods. VELTHORIS Technologies is changing that reality.
 </div>
 """, unsafe_allow_html=True)
 
@@ -538,7 +537,7 @@ with col_prob:
 with col_sol:
     st.markdown("""
     <div class="info-card">
-        <div class="info-card-title">▸ What AIS Technologies Delivers</div>
+        <div class="info-card-title">▸ What VELTHORIS Technologies Delivers</div>
         <div class="info-card-value">
             <ul class="bullet-list">
                 <li>Increased aviation safety through AI detection</li>
@@ -568,7 +567,7 @@ st.markdown("""
 <div class="section-badge">// BEYOND MAINTENANCE</div>
 <div class="section-title">Long-Term <span>Roadmap</span></div>
 <div class="section-desc">
-    ASHMIS is our first platform not our destination. AIS Technologies is building
+    ASHMIS is our first platform not our destination. VELTHORIS Technologies is building
     a systems-level aerospace and defense technology portfolio.
 </div>
 <div class="roadmap-grid">
@@ -609,8 +608,8 @@ st.markdown('</div>', unsafe_allow_html=True)
 st.markdown("""
 <div class="footer">
     <div>
-        <div class="footer-brand">AIS Technologies</div>
-        <div class="footer-info">Aerospace Intelligent Systems · AFIT Kaduna · Built for Scale. Designed for Impact.</div>
+        <div class="footer-brand">VELTHORIS Technologies</div>
+        <div class="footer-info">Aerospace Intelligent Systems · AFIT Kaduna · Built for Impact.</div>
                <div class="footer-info"> Founded by Ilim A.Theophilus</div>
     </div>
     <div style="font-family:'Orbitron',monospace; font-size:0.65rem;
