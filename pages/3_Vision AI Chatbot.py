@@ -294,7 +294,7 @@ st.markdown("""
     <div class="hero-scan-line"></div>
     <div class="hero-badge">⬡ &nbsp; AI Aerospace Intelligence Engine &nbsp; ⬡</div>
     <div class="hero-title">
-        DRONE VISION-AI<br>
+        VISION-AI<br>
         <span>Aerospace Chatbot</span>
     </div>
     <div class="hero-subtitle">ASHMIS — Intelligent Flight Operations Assistant</div>
