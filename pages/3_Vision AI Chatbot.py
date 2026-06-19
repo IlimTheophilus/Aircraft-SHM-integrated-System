@@ -308,7 +308,7 @@ st.markdown("""
         <span class="hero-tag-item"><span class="hero-tag-dot"></span> NCAA / EASA / ICAO</span>
         <span class="hero-tag-item"><span class="hero-tag-dot"></span> SHM Specialist</span>
         <span class="hero-tag-item"><span class="hero-tag-dot"></span> NDT / MRO Expert</span>
-        <span class="hero-tag-item"><span class="hero-tag-dot"></span> AIS Technologies</span>
+        <span class="hero-tag-item"><span class="hero-tag-dot"></span> VELTHORIS Technologies</span>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -377,7 +377,7 @@ st.markdown("""
 <div class="chat-panel">
     <div class="chat-panel-header">
         <span class="pulse-dot"></span>
-        <span class="chat-panel-title">// DRONE VISION-AI · Aerospace Intelligence Engine · Online</span>
+        <span class="chat-panel-title">// VISION-AI · Aerospace Intelligence Engine · Online</span>
     </div>
 </div>
 """, unsafe_allow_html=True)
