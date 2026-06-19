@@ -343,7 +343,7 @@ with st.sidebar:
     </div>
     <div class="ai-card">
         <div class="ai-card-title">▸ Designed By</div>
-        <div class="ai-card-value">Ilim A. Theophilus<br>Aerospace Engineering, AFIT Kaduna<br>Founder, AIS Technologies</div>
+        <div class="ai-card-value">Ilim A. Theophilus<br>Aerospace Engineering, AFIT Kaduna<br>Founder, VELTHORIS Technologies</div>
     </div>
     <div class="ai-card">
         <div class="ai-card-title">▸ Expertise Coverage</div>
@@ -400,7 +400,7 @@ if user_prompt:
         st.markdown(user_prompt)
 
     with st.chat_message("assistant"):
-        with st.spinner("Analysing..."):
+        with st.spinner("Processing..."):
             response = client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
                 messages=st.session_state.chat_history,
