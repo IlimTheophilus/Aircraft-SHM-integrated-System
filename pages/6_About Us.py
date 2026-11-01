@@ -604,7 +604,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 try:
-    img = Image.open("images/Startup company name.png")
+    img = Image.open("images/Velthoris Technologies_ Built for Impact.png")
     st.markdown('<div class="img-frame" style="margin-top:3rem;">', unsafe_allow_html=True)
     st.image(img, use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
