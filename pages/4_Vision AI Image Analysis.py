@@ -444,7 +444,7 @@ if not st.session_state.vision_analysis_done:
         with st.spinner("🔍 DRONE VISION-AI is analysing structural integrity..."):
             b64_image = encode_image(st.session_state.vision_image)
             response = client.chat.completions.create(
-                model="meta-llama/llama-4-scout-17b-16e-instruct",
+                model="qwen/qwen3.8-27b",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {
