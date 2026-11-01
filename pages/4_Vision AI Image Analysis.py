@@ -277,7 +277,7 @@ with st.sidebar:
     st.markdown("""
     <div class="info-card">
         <div class="info-card-title">▸ Vision Model</div>
-        <div class="info-card-value">Llama 4 Scout 17B 16E<br>Multimodal Instruct via Groq</div>
+        <div class="info-card-value">qwen/qwen3.8-27b<br>Multimodal Instruct via Groq</div>
     </div>
     <div class="info-card">
         <div class="info-card-title">▸ Detection Types</div>
