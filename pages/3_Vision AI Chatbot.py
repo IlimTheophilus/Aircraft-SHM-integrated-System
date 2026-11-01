@@ -402,7 +402,7 @@ if user_prompt:
     with st.chat_message("assistant"):
         with st.spinner("Processing..."):
             response = client.chat.completions.create(
-                model=model="openai/gpt-oss-120b",
+            model="qwen/qwen3.8-27b",
                 messages=st.session_state.chat_history,
                 max_tokens=1024
             )
